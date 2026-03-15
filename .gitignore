@@ -1,0 +1,25 @@
+# Secrets
+.env
+credentials.json
+token.json
+
+# Temporary processing files
+.tmp/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# macOS
+.DS_Store
+
+# Auto-generated skill and agent files
+.agents/
+.claude/
+skills-lock.json
+
+# Firecrawl cached scrape outputs (auto-generated, treat like .tmp)
+.firecrawl/

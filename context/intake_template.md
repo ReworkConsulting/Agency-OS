@@ -1,0 +1,42 @@
+# Client Intake Template
+
+Copy everything below this line, fill in what you have, and paste it to start onboarding.
+Leave anything blank that you don't know — Claude will ask for the important gaps before building the files.
+
+---
+
+COMPANY NAME:
+OWNER / PRIMARY CONTACT:
+PHONE:
+EMAIL:
+ADDRESS:
+TIME ZONE:
+WEBSITE:
+GOOGLE BUSINESS PROFILE URL:
+SERVICE AREA:
+INDUSTRY / PRIMARY SERVICE:
+
+FULL LIST OF SERVICES:
+
+FINANCING AVAILABLE:
+AVERAGE JOB VALUE:
+
+FACEBOOK PAGE URL:
+INSTAGRAM URL:
+YOUTUBE CHANNEL URL:
+TIKTOK URL:
+LINKEDIN URL:
+
+COMPETITORS (names or URLs, any you know):
+
+STARTING AD SPEND:
+BIGGEST MARKETING CHALLENGE:
+MAIN GOAL (6–12 MONTHS):
+HOW THEY HEARD ABOUT REWORK:
+WHY THEY HIRED REWORK:
+
+FACEBOOK AD ACCOUNT ID:
+GHL SUB-ACCOUNT:
+
+GRILL THEM INTERVIEW TRANSCRIPT:
+(paste transcript below, or write "none")
