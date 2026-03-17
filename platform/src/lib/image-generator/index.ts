@@ -1,5 +1,7 @@
 import { fal } from '@fal-ai/client'
 
+fal.config({ credentials: process.env.FAL_KEY })
+
 export type AdSize = 'square' | 'portrait' | 'story'
 
 const SIZE_MAP: Record<AdSize, { width: number; height: number }> = {
