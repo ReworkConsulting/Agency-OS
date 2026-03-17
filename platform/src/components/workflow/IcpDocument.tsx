@@ -39,9 +39,11 @@ export function IcpDocument({
   const [exporting, setExporting] = useState(false)
   const [exportUrl, setExportUrl] = useState<string | null>(null)
   const [exportError, setExportError] = useState<string | null>(null)
+  const [versionList, setVersionList] = useState(allVersions.length > 0 ? allVersions : [icp])
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
-  const versions = allVersions.length > 0 ? allVersions : [icp]
-  const active = versions.find(v => v.id === activeId) ?? icp
+  const active = versionList.find(v => v.id === activeId) ?? versionList[0] ?? icp
 
   const primary = brandPrimaryColor ?? null
   const secondary = brandSecondaryColor ?? null
@@ -78,6 +80,23 @@ export function IcpDocument({
       setExportError('Network error — please try again')
     } finally {
       setExporting(false)
+    }
+  }
+
+  const handleDelete = async (versionId: string) => {
+    setDeleting(true)
+    try {
+      const res = await fetch(`/api/clients/${clientSlug}/icp/${versionId}`, { method: 'DELETE' })
+      if (!res.ok) return
+      const data = await res.json()
+      const remaining = versionList.filter(v => v.id !== versionId)
+      setVersionList(remaining)
+      // Switch to the new current, or the first remaining
+      const nextActive = data.new_current_id ?? remaining[0]?.id ?? null
+      if (nextActive) setActiveId(nextActive)
+    } finally {
+      setDeleting(false)
+      setConfirmDeleteId(null)
     }
   }
 
@@ -239,8 +258,8 @@ export function IcpDocument({
         )}
       </div>
 
-      {/* ── Version selector (if multiple) ── */}
-      {versions.length > 1 && (
+      {/* ── Version selector ── */}
+      {versionList.length > 0 && (
         <div
           className="px-5 py-2.5 flex items-center gap-2 overflow-x-auto"
           style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg-subtle)' }}
@@ -248,29 +267,55 @@ export function IcpDocument({
           <span className="text-[10px] font-semibold uppercase tracking-wider shrink-0" style={{ color: 'var(--text-3)' }}>
             Version
           </span>
-          {versions
+          {versionList
             .slice()
             .sort((a, b) => b.version - a.version)
             .map(v => (
-              <button
-                key={v.id}
-                onClick={() => setActiveId(v.id)}
-                className="shrink-0 px-2.5 py-1 rounded-md text-[11px] font-medium transition-all"
-                style={{
-                  background: v.id === activeId
-                    ? (primary ?? 'var(--text-1)')
-                    : 'var(--bg-hover)',
-                  color: v.id === activeId
-                    ? (primary ? '#ffffff' : 'var(--bg)')
-                    : 'var(--text-2)',
-                  border: '1px solid var(--border)',
-                }}
-              >
-                v{v.version}
-                <span className="ml-1 opacity-60">
-                  {formatDateShort(v.created_at)}
-                </span>
-              </button>
+              <div key={v.id} className="group flex items-center gap-1 shrink-0">
+                <button
+                  onClick={() => setActiveId(v.id)}
+                  className="px-2.5 py-1 rounded-md text-[11px] font-medium transition-all"
+                  style={{
+                    background: v.id === activeId ? (primary ?? 'var(--text-1)') : 'var(--bg-hover)',
+                    color: v.id === activeId ? (primary ? '#ffffff' : 'var(--bg)') : 'var(--text-2)',
+                    border: '1px solid var(--border)',
+                  }}
+                >
+                  v{v.version}
+                  <span className="ml-1 opacity-60">{formatDateShort(v.created_at)}</span>
+                </button>
+
+                {/* Delete — confirm inline */}
+                {confirmDeleteId === v.id ? (
+                  <div className="flex items-center gap-1">
+                    <span className="text-[10px]" style={{ color: 'var(--text-3)' }}>Delete?</span>
+                    <button
+                      onClick={() => handleDelete(v.id)}
+                      disabled={deleting}
+                      className="text-[10px] px-1.5 py-0.5 rounded"
+                      style={{ background: 'rgba(239,68,68,0.1)', color: '#dc2626', border: '1px solid rgba(239,68,68,0.2)' }}
+                    >
+                      {deleting ? '…' : 'Yes'}
+                    </button>
+                    <button
+                      onClick={() => setConfirmDeleteId(null)}
+                      className="text-[10px] px-1.5 py-0.5 rounded"
+                      style={{ background: 'var(--bg-hover)', color: 'var(--text-3)', border: '1px solid var(--border)' }}
+                    >
+                      No
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setConfirmDeleteId(v.id)}
+                    title={`Delete v${v.version}`}
+                    className="w-5 h-5 flex items-center justify-center rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                    style={{ color: 'var(--text-4)', background: 'var(--bg-hover)', border: '1px solid var(--border)' }}
+                  >
+                    <TrashIcon />
+                  </button>
+                )}
+              </div>
             ))}
         </div>
       )}
@@ -342,6 +387,14 @@ function MetaTag({ label, value }: { label: string; value: string }) {
       <span className="font-medium" style={{ color: 'var(--text-2)' }}>{label}:</span>{' '}
       {value}
     </span>
+  )
+}
+
+function TrashIcon() {
+  return (
+    <svg width="10" height="10" viewBox="0 0 16 16" fill="none">
+      <path d="M2 4h12M5 4V2h6v2M6 7v5M10 7v5M3 4l1 9h8l1-9" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   )
 }
 
