@@ -1,0 +1,168 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/* ─── Dark mode via .dark class (next-themes) ─────────────────────────── */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ─── Theme tokens ────────────────────────────────────────────────────── */
+:root {
+  --bg:           #fafafa;
+  --bg-card:      #ffffff;
+  --bg-subtle:    #f4f4f5;
+  --bg-hover:     #ececed;
+  --border:       #e4e4e7;
+  --border-dim:   #f0f0f1;
+  --text-1:       #09090b;
+  --text-2:       #52525b;
+  --text-3:       #a1a1aa;
+  --text-4:       #d4d4d8;
+  --sidebar-bg:   #f0f0f1;
+  --sidebar-border: #dddde0;
+  --accent:       #09090b;
+  --accent-fg:    #ffffff;
+}
+
+.dark {
+  --bg:           #0a0a0a;
+  --bg-card:      #111111;
+  --bg-subtle:    #161616;
+  --bg-hover:     #1c1c1c;
+  --border:       rgba(255,255,255,0.08);
+  --border-dim:   rgba(255,255,255,0.04);
+  --text-1:       #fafafa;
+  --text-2:       #a1a1aa;
+  --text-3:       #52525b;
+  --text-4:       #3f3f46;
+  --sidebar-bg:   #080808;
+  --sidebar-border: rgba(255,255,255,0.06);
+  --accent:       #ffffff;
+  --accent-fg:    #000000;
+}
+
+/* ─── Base ────────────────────────────────────────────────────────────── */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
+}
+
+html:not(.dark) {
+  color-scheme: light;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text-1);
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* ─── Scrollbar ───────────────────────────────────────────────────────── */
+::-webkit-scrollbar        { width: 5px; height: 5px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-4); }
+
+/* ─── Selection ───────────────────────────────────────────────────────── */
+::selection {
+  background: var(--text-1);
+  color: var(--bg);
+  opacity: 0.15;
+}
+
+/* ─── Focus ───────────────────────────────────────────────────────────── */
+*:focus-visible {
+  outline: 1.5px solid var(--text-2);
+  outline-offset: 2px;
+}
+
+/* ─── Prose (dark) ────────────────────────────────────────────────────── */
+.dark .prose pre,
+.prose-dark pre {
+  background: #18181b !important;
+  border: 1px solid #27272a;
+}
+.dark .prose code,
+.prose-dark code {
+  background: #27272a;
+}
+.prose pre  { background: #f4f4f5 !important; border: 1px solid #e4e4e7; }
+.prose code { background: #f0f0f1; padding: 0.1em 0.3em; border-radius: 3px; font-size: 0.85em; }
+.prose code::before, .prose code::after { content: "" !important; }
+
+/* ─── Animations ──────────────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in { animation: fadeIn 0.25s ease-out both; }
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-6px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.animate-slide-in { animation: slideIn 0.2s ease-out both; }
+
+@keyframes skeleton {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 0.7; }
+}
+.skeleton {
+  animation: skeleton 1.5s ease-in-out infinite;
+  background: var(--bg-subtle);
+  border-radius: 4px;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+.cursor-blink { animation: blink 1s step-end infinite; }
+
+/* ─── Theme-aware utility shortcuts ──────────────────────────────────── */
+.bg-page        { background: var(--bg); }
+.bg-card-theme  { background: var(--bg-card); }
+.bg-subtle      { background: var(--bg-subtle); }
+.border-theme   { border-color: var(--border); }
+.text-theme-1   { color: var(--text-1); }
+.text-theme-2   { color: var(--text-2); }
+.text-theme-3   { color: var(--text-3); }
+
+/* ─── Global interaction feedback ────────────────────────────────────── */
+
+/* Press-down effect on all buttons and links — opacity + subtle scale */
+button:not(:disabled):active,
+a:active {
+  opacity: 0.68;
+  transform: scale(0.97);
+  transition: opacity 0.08s ease, transform 0.08s ease;
+}
+
+/* Ensure all interactive elements have a base transition so
+   hover states feel responsive rather than instant */
+button:not(:disabled),
+a[href],
+label[for],
+[role="button"]:not(:disabled) {
+  transition-property: background-color, color, border-color, opacity, transform, box-shadow;
+  transition-duration: 0.15s;
+  transition-timing-function: ease;
+}
+
+/* ─── Settings sidebar nav items ────────────────────────────────────── */
+/* Used in the server-rendered settings layout where useState isn't available.
+   !important is needed to override inline style props. */
+.settings-nav-link {
+  transition: background-color 0.15s ease, color 0.15s ease !important;
+}
+.settings-nav-link:hover {
+  background: var(--bg-hover) !important;
+  color: var(--text-1) !important;
+}
+.settings-nav-link:hover > span {
+  color: var(--text-1) !important;
+}

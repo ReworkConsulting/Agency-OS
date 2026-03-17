@@ -52,3 +52,7 @@
 - **Facebook Ad Account ID:** TBD
 - **GHL Sub-Account:** TBD
 - **Preferred Communication:** TBD
+# Logo Reference
+Primary logo (color): https://cooler-living.com/wp-content/uploads/2023/08/color-logo.png
+White variant: https://cooler-living.com/wp-content/uploads/2023/08/color-logo-white.png
+Scraped: 2026-03-15

@@ -61,12 +61,17 @@ Agency OS/
 ├── workflows/                  ← Markdown SOPs. Always read the workflow before executing.
 │   ├── router.md               ← Entry point — routes all requests to the right workflow
 │   ├── onboard_client.md       ← Client onboarding: parse intake, gap check, build files
-│   └── build_icp.md            ← ICP research: scrape, research, synthesize, deliver
+│   ├── build_icp.md            ← ICP research: scrape, research, synthesize, deliver
+│   ├── generate_ads.md         ← Facebook ad copy generation (requires ICP first)
+│   ├── seo_audit.md            ← SEO audit and keyword gap analysis (requires ICP first)
+│   └── generate_report.md      ← Monthly performance report generation
 │
 ├── tools/                      ← Python scripts for deterministic tasks only.
-│   ├── analyze_reviews.py      ← Review analysis (legacy — Firecrawl + Claude preferred)
-│   ├── scrape_reviews.py       ← Review scraper (legacy — use firecrawl-browser instead)
-│   └── build_icp_doc.py        ← Document formatter (legacy — Claude writes directly)
+│   ├── sync_client_to_supabase.py  ← Syncs one client's markdown files → Supabase
+│   ├── import_all_clients.py       ← One-time bulk migration: all clients → Supabase
+│   ├── analyze_reviews.py          ← Review analysis (legacy — Firecrawl + Claude preferred)
+│   ├── scrape_reviews.py           ← Review scraper (legacy — use firecrawl-browser instead)
+│   └── build_icp_doc.py            ← Document formatter (legacy — Claude writes directly)
 │
 ├── skills/                     ← YOUR custom Claude Code skills. Each in its own folder.
 │   └── skill-creator/          ← Anthropic's skill builder meta-skill
@@ -111,6 +116,14 @@ When Christian sends a request, read `workflows/router.md` first. It tells you w
 **2. Read the client folder before doing anything client-related**
 Check `clients/{client-name}/overview.md` before any client work. Check `icp.md` to see if research is already done.
 
+**2a. Supabase is the single source of truth for the Platform**
+The web platform (`platform/`) reads client data exclusively from Supabase — it does not read markdown files. After any onboarding or data change:
+- Run `python tools/sync_client_to_supabase.py <client-slug>` to push one client to Supabase
+- Run `python tools/import_all_clients.py` to sync all clients at once
+- The markdown files are the working copy; Supabase is what the Platform reads
+
+If a client does not appear in the Platform UI, it's because they haven't been synced to Supabase yet.
+
 **3. Read the workflow before executing it**
 Workflows are your operating instructions. Follow them step by step. Do not improvise around them.
 
@@ -124,6 +137,15 @@ For any scraping or web research: use the appropriate Firecrawl skill. Only fall
 
 **6. Keep workflows current**
 Do not create or overwrite workflows without asking unless explicitly told to. These are the operating instructions — they need to be preserved and intentional.
+
+**7. Respect workflow dependency order**
+Workflows have a required execution order. Never skip a prerequisite:
+```
+onboard_client → build_icp → generate_ads
+                           → seo_audit
+                           → generate_report
+```
+Always check that `icp.md` exists and is complete before running any generation workflow. If it doesn't exist, run `build_icp.md` first.
 
 ---
 

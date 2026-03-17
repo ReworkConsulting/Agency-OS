@@ -23,3 +23,8 @@ skills-lock.json
 
 # Firecrawl cached scrape outputs (auto-generated, treat like .tmp)
 .firecrawl/
+
+# Platform (Next.js)
+platform/.env.local
+platform/.next/
+platform/node_modules/

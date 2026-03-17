@@ -4,6 +4,11 @@
 # Claude API
 anthropic
 
-# Web scraping (used by scrape_reviews.py)
+# HTTP requests — used by sync_client_to_supabase.py and import_all_clients.py
 requests
+
+# Environment variable loading from .env
+python-dotenv
+
+# HTML parsing (used by legacy tools in tools/legacy/)
 beautifulsoup4

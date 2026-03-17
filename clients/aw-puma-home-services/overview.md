@@ -84,3 +84,8 @@ Carrier, Lennox, Trane, Mitsubishi, Rheem, Navien
 2. **Lowest Price Guarantee** — will beat any licensed competitor's written quote
 3. **Better Than We Found It Guarantee** — shoe covers, drop cloths, full clean-up
 4. **Fix It or Hotel Guarantee** — if essential climate system can't be fixed same night, they put the family in a hotel
+# Logo Reference
+Primary logo (color, horizontal text): https://awpumahome.com/images/logos/text-logo-color.png
+White variant (footer): https://awpumahome.com/images/logos/text-logo-white.png
+Shield icon: https://awpumahome.com/images/logos/shield-logo-color.png
+Scraped: 2026-03-15

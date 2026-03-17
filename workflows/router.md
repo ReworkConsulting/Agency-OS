@@ -34,17 +34,29 @@ If the request is vague or could match more than one workflow, ask one clarifyin
 
 Use the table below to find the correct workflow. Match on intent, not exact wording.
 
-| If the user wants to... | Route to | Status |
-|---|---|---|
-| Build the ICP research document — brand voice, ideal customer profile, offer extraction | `workflows/build_icp.md` | ✅ Built |
-| Write Facebook ad copy, hooks, headlines, primary text, CTAs | `workflows/generate_ads.md` | 🔴 Not yet built |
-| Write a video script for a Facebook ad or VSL | `workflows/write_video_script.md` | 🔴 Not yet built |
-| Run an SEO audit, find keywords, analyze a website for search | `workflows/seo_audit.md` | 🔴 Not yet built |
-| Research a competitor — positioning, ads, reviews, strategy | `workflows/competitor_research.md` | 🔴 Not yet built |
-| Scrape a website or pull data from a URL | `workflows/scrape_website.md` | 🔴 Not yet built |
-| Write content — blog post, email, SMS, social | `workflows/content_writer.md` | 🔴 Not yet built |
-| Generate a client performance report | `workflows/generate_report.md` | 🔴 Not yet built |
-| Set up a new client in the system | `workflows/onboard_client.md` | ✅ Built |
+| If the user wants to... | Route to | Status | Requires |
+|---|---|---|---|
+| Set up a new client in the system | `workflows/onboard_client.md` | ✅ Built | — |
+| Build the ICP research document — brand voice, ideal customer profile, offer extraction | `workflows/build_icp.md` | ✅ Built | Client onboarded |
+| Write Facebook ad copy, hooks, headlines, primary text, CTAs, image prompts | `workflows/generate_ads.md` | ✅ Built | ICP complete |
+| Run an SEO audit, find keywords, benchmark competitors for search | `workflows/seo_audit.md` | ✅ Built | ICP complete |
+| Generate a client monthly performance report | `workflows/generate_report.md` | ✅ Built | Client onboarded |
+| Write a video script for a Facebook ad or VSL | `workflows/write_video_script.md` | 🔴 Not yet built | ICP complete |
+| Research a competitor — positioning, ads, reviews, strategy | `workflows/competitor_research.md` | 🔴 Not yet built | Client onboarded |
+| Scrape a website or pull data from a URL | `workflows/scrape_website.md` | 🔴 Not yet built | — |
+| Write content — blog post, email, SMS, social | `workflows/content_writer.md` | 🔴 Not yet built | ICP complete |
+
+**Workflow dependency order:**
+```
+onboard_client → build_icp → generate_ads
+                           → seo_audit
+                           → write_video_script
+                           → content_writer
+                           ↓
+                       generate_report
+```
+
+Never run a downstream workflow if its prerequisite hasn't been completed for this client. If the ICP doesn't exist yet, route to `build_icp.md` first.
 
 **If a workflow is marked 🔴:** Tell the user it hasn't been built yet. Describe what it would do and ask if they want to build it now or proceed another way.
 

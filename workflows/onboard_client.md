@@ -140,6 +140,31 @@ If the browser scrape fails: try `firecrawl-search` with `"[Business Name]" revi
 
 ---
 
+## Step 8 — Sync to Supabase
+
+After the markdown files are saved, run the sync script to create the client record in Supabase. The Platform (web app) reads exclusively from Supabase — if this step is skipped, the client will not appear in the Platform and workflows cannot be run from the UI.
+
+```bash
+python tools/sync_client_to_supabase.py <client-slug>
+```
+
+Example:
+```bash
+python tools/sync_client_to_supabase.py smith-roofing
+```
+
+The script:
+- Reads `overview.md` and `services.md`
+- Upserts the client record into Supabase
+- Upserts any competitors from `competitors.md`
+
+If the script fails (missing credentials, Supabase unreachable):
+- Note the failure in the output
+- The markdown files are the source of truth — Supabase can be synced later by re-running the script
+- Do NOT block onboarding completion because of a sync failure
+
+---
+
 ## Output
 
 `clients/<client-name>/` is ready with:
@@ -152,8 +177,9 @@ If the browser scrape fails: try `firecrawl-search` with `"[Business Name]" revi
 Confirm to the user:
 1. Folder created at `clients/<client-name>/`
 2. How many reviews were collected
-3. Which Tier 1 or Tier 2 fields are still TBD (so they know what to gather before the ICP)
-4. "Ready to run the ICP whenever you are. Run `workflows/build_icp.md` to start research."
+3. Whether Supabase sync succeeded
+4. Which Tier 1 or Tier 2 fields are still TBD (so they know what to gather before the ICP)
+5. "Ready to run the ICP whenever you are. Run `workflows/build_icp.md` to start research."
 
 ---
 
