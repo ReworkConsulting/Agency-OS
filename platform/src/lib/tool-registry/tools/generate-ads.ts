@@ -37,11 +37,11 @@ export const generateAdsTool: ToolDefinition = {
       placeholder: 'e.g. Budget-Conscious Homeowner — lead with savings/ROI',
     },
     {
-      key: 'visual_style',
-      label: 'Visual Style',
+      key: 'ad_format',
+      label: 'Ad Format',
       type: 'select',
       required: true,
-      options: ['Clean & Professional', 'Lifestyle', 'Before & After', 'Text-Heavy', 'Social Proof'],
+      options: ['Headline Statement', 'Offer/Promotion', 'Testimonial Card', 'Before & After', 'Pain Point Hook', 'Social Proof/Stats', 'Us vs. Them', 'Feature Bullets', 'Lifestyle/Aspiration', 'Urgency/Seasonal'],
     },
     {
       key: 'ad_size',

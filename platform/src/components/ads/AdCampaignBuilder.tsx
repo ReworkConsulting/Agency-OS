@@ -118,13 +118,14 @@ export function AdCampaignBuilder({
         if (!line.startsWith('data: ')) continue
         const raw = line.slice(6).trim()
         if (!raw) continue
+        let event: Record<string, unknown>
         try {
-          const event = JSON.parse(raw)
-          if (event.type === 'complete') newAds = event.creatives ?? []
-          if (event.type === 'error') throw new Error(event.message)
+          event = JSON.parse(raw)
         } catch {
-          // skip parse errors
+          continue
         }
+        if (event.type === 'complete') newAds = (event.creatives ?? []) as AdCreative[]
+        if (event.type === 'error') throw new Error(event.message as string)
       }
     }
 
