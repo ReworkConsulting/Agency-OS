@@ -68,10 +68,11 @@ Agency OS/
 │
 ├── tools/                      ← Python scripts for deterministic tasks only.
 │   ├── sync_client_to_supabase.py  ← Syncs one client's markdown files → Supabase
-│   ├── import_all_clients.py       ← One-time bulk migration: all clients → Supabase
-│   ├── analyze_reviews.py          ← Review analysis (legacy — Firecrawl + Claude preferred)
-│   ├── scrape_reviews.py           ← Review scraper (legacy — use firecrawl-browser instead)
-│   └── build_icp_doc.py            ← Document formatter (legacy — Claude writes directly)
+│   ├── import_all_clients.py       ← Bulk migration: all clients + ICPs + competitors → Supabase
+│   └── legacy/                     ← Superseded scripts. Do not use — kept for reference only.
+│       ├── analyze_reviews.py
+│       ├── scrape_reviews.py
+│       └── build_icp_doc.py
 │
 ├── skills/                     ← YOUR custom Claude Code skills. Each in its own folder.
 │   └── skill-creator/          ← Anthropic's skill builder meta-skill
@@ -146,6 +147,39 @@ onboard_client → build_icp → generate_ads
                            → generate_report
 ```
 Always check that `icp.md` exists and is complete before running any generation workflow. If it doesn't exist, run `build_icp.md` first.
+
+**8. Push to GitHub after every meaningful change**
+After completing any task that modifies files — workflows, tools, platform code, client data, CLAUDE.md — commit and push to GitHub before ending the session.
+
+Commit rules:
+- Stage specific files by name. Never use `git add -A` or `git add .` blindly.
+- The pre-commit hook will block actual credential values. If it flags a false positive (env var name in source code), investigate before overriding.
+- Never commit: `.env`, `.env.local`, any file containing real API keys or tokens.
+- Always commit: workflows, tools, platform source, client markdown files, CLAUDE.md changes.
+
+Push command:
+```bash
+git push origin main
+```
+
+If the push is blocked by a branch protection rule or remote conflict, surface it — do not force push.
+
+**9. Nothing lives only on this machine — all layers must stay in sync**
+Data created in one layer must be available in all layers that need it. No silos.
+
+| When you... | You must also... |
+|---|---|
+| Create or update a client folder (`clients/`) | Run `python tools/sync_client_to_supabase.py <slug>` to push it to Supabase so the Platform can see it |
+| Complete an ICP in `clients/{slug}/icp.md` | The ICP workflow automatically saves to `icp_documents` in Supabase — verify it landed |
+| Add a new workflow (`workflows/`) | Register it in `workflows/router.md` and in `platform/src/lib/tool-registry/` if it needs a Platform UI |
+| Add a new tool to the Platform tool registry | Create the corresponding `workflows/*.md` SOP — a tool with no workflow file causes a runtime error |
+| Change a workflow SOP | The Platform picks it up automatically on next run — no extra step needed |
+| Add a new Python tool to `tools/` | Add it to `requirements.txt` if it introduces new dependencies |
+
+Before ending any session, do a quick sync check:
+1. Are all client folders represented in Supabase? (if not, run `python tools/import_all_clients.py`)
+2. Are all changes committed and pushed to GitHub?
+3. Does every tool in the Platform registry have a corresponding workflow file on disk?
 
 ---
 
