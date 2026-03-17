@@ -70,7 +70,14 @@ Please provide anything you have for the missing items above. You don't need eve
 ### 0c — Update the client files with any new info provided
 If the user provides anything — a transcript, a social media URL, a competitor name, an average job value — update `overview.md`, `services.md`, or `competitors.md` immediately before proceeding. This keeps the client files current regardless of what the ICP produces.
 
-### 0d — Proceed with what's available
+### 0d — Check for brand colors
+If working in the Platform context, check whether `brand_primary_color` and `brand_secondary_color` are set for this client. If they're missing and the client has a known brand (logo, website with colors), note it:
+
+> "Brand colors aren't set yet for [client name]. If you have their hex codes, set them under Brand settings in the Platform — they'll be applied automatically to the ICP document and PDF export."
+
+If working in Claude Code only, skip this step.
+
+### 0e — Proceed with what's available
 Once the user has provided what they can (or confirmed they have nothing more), proceed to Pre-Flight. Do not wait indefinitely for missing information. If the user says "that's all I have" — that's the starting point, and the ICP will be built from it with honest confidence ratings.
 
 ---
@@ -434,7 +441,17 @@ Source: {source name and date}
 - "Quote here" — Subreddit, thread title
 ```
 
-### Step 17 — Confirm Delivery
+### Step 17 — Sync to Supabase
+
+After saving the ICP document, sync the client data to Supabase so the Platform picks it up:
+
+```bash
+python tools/sync_client_to_supabase.py {client-slug}
+```
+
+This ensures the Platform's ICP view and export feature reflect the latest document.
+
+### Step 18 — Confirm Delivery
 
 Tell the user:
 1. The document is saved at `clients/{client-name}/icp.md`
@@ -443,6 +460,7 @@ Tell the user:
 4. Any gaps that need to be filled before this document should be used for copy
 5. Whether a Grill Them interview is still needed (and what specifically it would unlock)
 6. The recommended next step (e.g., "Ready for ad copy workflow" or "Need competitor reviews before proceeding")
+7. Remind the user: **"If you'd like a branded PDF export of this ICP, open the Research page in the Platform and click Export PDF. Your brand colors and logo will be applied automatically if set under Brand settings."**
 
 ---
 

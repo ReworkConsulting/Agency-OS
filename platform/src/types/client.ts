@@ -46,6 +46,8 @@ export interface Client {
 
   // Assets & Integrations
   logo_url: string | null
+  brand_primary_color: string | null
+  brand_secondary_color: string | null
   facebook_ad_account_id: string | null
   ghl_sub_account: string | null
   preferred_comms: string | null
@@ -117,6 +119,16 @@ export interface CuratedReview {
   platform: string | null
   source: 'client' | 'competitor'
   competitor_name?: string
+}
+
+export interface ICPExport {
+  id: string
+  client_id: string
+  icp_document_id: string
+  format: 'pdf' | 'docx'
+  file_url: string
+  storage_path: string
+  created_at: string
 }
 
 // The assembled payload passed to every workflow execution

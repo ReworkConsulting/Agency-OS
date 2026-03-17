@@ -12,6 +12,7 @@
     "@anthropic-ai/sdk": "^0.78.0",
     "@fal-ai/client": "^1.9.4",
     "@mendable/firecrawl-js": "^1.21.1",
+    "@react-pdf/renderer": "^4.3.2",
     "@supabase/ssr": "^0.9.0",
     "@supabase/supabase-js": "^2.99.1",
     "@tailwindcss/typography": "^0.5.19",

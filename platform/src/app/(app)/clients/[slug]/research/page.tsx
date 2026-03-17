@@ -10,13 +10,13 @@ async function getResearchData(slug: string) {
 
   const { data: client } = await supabase
     .from('clients')
-    .select('id, company_name, logo_url, website_url, gbp_url, interview_transcript_available')
+    .select('id, company_name, logo_url, brand_primary_color, brand_secondary_color, website_url, gbp_url, interview_transcript_available')
     .eq('slug', slug)
     .single()
 
   if (!client) return null
 
-  const [icpCurrent, icpAll, outputsResult] = await Promise.all([
+  const [icpCurrent, icpAll, outputsResult, exportsResult] = await Promise.all([
     // Current ICP
     supabase
       .from('icp_documents')
@@ -40,6 +40,14 @@ async function getResearchData(slug: string) {
       .eq('workflow_id', 'build_icp')
       .order('created_at', { ascending: false })
       .limit(10),
+
+    // PDF exports
+    supabase
+      .from('icp_exports')
+      .select('id, format, file_url, created_at, icp_document_id')
+      .eq('client_id', client.id)
+      .order('created_at', { ascending: false })
+      .limit(10),
   ])
 
   return {
@@ -47,6 +55,7 @@ async function getResearchData(slug: string) {
     icp: icpCurrent.data,
     allVersions: icpAll.data ?? [],
     outputs: outputsResult.data ?? [],
+    exports: exportsResult.data ?? [],
   }
 }
 
@@ -60,7 +69,7 @@ export default async function ResearchPage({
 
   if (!data) notFound()
 
-  const { client, icp, allVersions, outputs } = data
+  const { client, icp, allVersions, outputs, exports: icpExports } = data
 
   const prefills: Record<string, string> = {}
   if (client.website_url) prefills.website_url = client.website_url
@@ -106,21 +115,71 @@ export default async function ResearchPage({
                 allVersions={allVersions}
                 clientName={client.company_name}
                 logoUrl={client.logo_url}
+                brandPrimaryColor={client.brand_primary_color}
+                brandSecondaryColor={client.brand_secondary_color}
+                clientSlug={slug}
               />
             </div>
 
-            {/* Run panel (right 40%) */}
-            <div className="col-span-2">
-              <p className="text-[10px] font-bold tracking-widest uppercase mb-4" style={{ color: 'var(--text-3)' }}>
-                Re-run Research
-              </p>
-              <WorkflowPanel
-                tool={buildIcpTool}
-                clientSlug={slug}
-                prefills={prefills}
-                initialOutputs={outputs as unknown as Parameters<typeof WorkflowPanel>[0]['initialOutputs']}
-                compact
-              />
+            {/* Run panel + exports (right 40%) */}
+            <div className="col-span-2 space-y-6">
+              <div>
+                <p className="text-[10px] font-bold tracking-widest uppercase mb-4" style={{ color: 'var(--text-3)' }}>
+                  Re-run Research
+                </p>
+                <WorkflowPanel
+                  tool={buildIcpTool}
+                  clientSlug={slug}
+                  prefills={prefills}
+                  initialOutputs={outputs as unknown as Parameters<typeof WorkflowPanel>[0]['initialOutputs']}
+                  compact
+                />
+              </div>
+
+              {/* Export history */}
+              {icpExports.length > 0 && (
+                <div>
+                  <p className="text-[10px] font-bold tracking-widest uppercase mb-3" style={{ color: 'var(--text-3)' }}>
+                    Exported PDFs
+                  </p>
+                  <div
+                    className="rounded-xl overflow-hidden"
+                    style={{ border: '1px solid var(--border)', background: 'var(--bg-card)' }}
+                  >
+                    {icpExports.map((exp, i) => (
+                      <a
+                        key={exp.id}
+                        href={exp.file_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between px-4 py-3 transition-colors hover:bg-opacity-50"
+                        style={{
+                          borderBottom: i < icpExports.length - 1 ? '1px solid var(--border-dim)' : 'none',
+                          color: 'var(--text-2)',
+                        }}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ color: 'var(--text-4)' }}>
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                            <polyline points="14 2 14 8 20 8" />
+                          </svg>
+                          <span className="text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-3)' }}>
+                            {exp.format}
+                          </span>
+                          <span className="text-[11px]">
+                            {new Date(exp.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                          </span>
+                        </div>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ color: 'var(--text-4)' }}>
+                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                          <polyline points="15 3 21 3 21 9" />
+                          <line x1="10" y1="14" x2="21" y2="3" />
+                        </svg>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         ) : (
