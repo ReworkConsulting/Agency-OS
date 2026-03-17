@@ -15,7 +15,7 @@ interface AdGenerateRequest {
   target_service: string
   campaign_objective: string
   angle: string
-  visual_style: string
+  ad_format: string
   ad_size: AdSize
   ad_count: string
   messaging_focus?: string
@@ -112,14 +112,14 @@ export async function POST(request: NextRequest) {
     target_service,
     campaign_objective,
     angle,
-    visual_style,
+    ad_format,
     ad_size,
     ad_count,
     messaging_focus,
     reference_image_url,
   } = body
 
-  if (!client_slug || !target_service || !campaign_objective || !angle || !visual_style || !ad_size) {
+  if (!client_slug || !target_service || !campaign_objective || !angle || !ad_format || !ad_size) {
     return Response.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
@@ -192,7 +192,7 @@ export async function POST(request: NextRequest) {
             workflow_id: 'generate_ads',
             tool_id: 'generate_ads',
             status: 'running',
-            inputs: { target_service, campaign_objective, angle, visual_style, ad_size, ad_count, messaging_focus },
+            inputs: { target_service, campaign_objective, angle, ad_format, ad_size, ad_count, messaging_focus },
             model,
             workflow_file: generateAdsTool.workflow_file,
             workflow_file_hash: workflowFileHash,
@@ -207,7 +207,7 @@ export async function POST(request: NextRequest) {
           target_service,
           campaign_objective,
           angle,
-          visual_style,
+          ad_format,
           ad_size,
           ad_count: ad_count ?? '5',
           ...(messaging_focus ? { messaging_focus } : {}),
@@ -262,7 +262,7 @@ export async function POST(request: NextRequest) {
           target_service,
           campaign_objective,
           angle,
-          visual_style,
+          ad_format,
           ad_size,
           hook: ad.hook,
           primary_text: ad.primary_text,
@@ -277,7 +277,7 @@ export async function POST(request: NextRequest) {
         const { data: creatives } = await supabase
           .from('ad_creatives')
           .insert(insertRows)
-          .select('id, hook, primary_text, headline, cta, image_url, image_status, angle, visual_style, ad_size')
+          .select('id, hook, primary_text, headline, cta, image_url, image_status, angle, ad_format, ad_size, is_winner')
 
         // 10. Save full Claude output to workflow_outputs
         await supabase.from('workflow_outputs').insert({

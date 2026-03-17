@@ -9,7 +9,7 @@ Generate a complete set of high-converting Facebook ad variations for a home ser
 - `target_service`: The specific service being promoted (e.g. "HVAC Installation", "Roof Replacement")
 - `campaign_objective`: Lead Generation | Awareness | Retargeting
 - `angle`: The creative angle/ICP profile to target (provided by user from ICP suggestions)
-- `visual_style`: Clean & Professional | Lifestyle | Before & After | Text-Heavy | Social Proof
+- `ad_format`: The named ad template to use — one of: Headline Statement | Offer/Promotion | Testimonial Card | Before & After | Pain Point Hook | Social Proof/Stats | Us vs. Them | Feature Bullets | Lifestyle/Aspiration | Urgency/Seasonal
 - `ad_size`: square (1080×1080) | portrait (1080×1350) | story (1080×1920)
 - `ad_count`: Number of ad variations to produce (3, 5, or 10)
 - `messaging_focus` (optional): Specific benefit, hook, or talking point to emphasize
@@ -39,7 +39,7 @@ HOOK: [The hook — 1-2 punchy sentences, written as it would appear on the ad o
 PRIMARY_TEXT: [The primary text body — 2-4 sentences. Opens with a pain point or desire, introduces the solution, adds social proof or urgency. Conversational, no jargon.]
 HEADLINE: [Short headline — 3-7 words. Direct and benefit-led.]
 CTA: [Call to action — 3-6 words. e.g. "Get a Free Quote", "Book Your Inspection", "See How Much You Save"]
-IMAGE_PROMPT: [Detailed image generation prompt for FAL AI Flux model. Include: subject/scene, visual style, lighting, color palette, composition, mood. Must match the visual_style input. Do NOT include text or logos in the prompt. Be specific enough that the image supports the hook and angle without referencing competitor brands or real people.]
+IMAGE_PROMPT: [Detailed image generation prompt for FAL AI Flux model. Include: subject/scene, visual style, lighting, color palette, composition, mood. Must match the ad_format's composition rules below. Do NOT include text or logos in the prompt. Be specific enough that the image supports the hook and angle without referencing competitor brands or real people.]
 ---AD_END---
 ```
 
@@ -73,17 +73,29 @@ Write hooks that match the campaign objective:
 
 ---
 
-## Image Prompt Guidelines by Visual Style
+## Image Composition Rules by Ad Format
 
-**Clean & Professional:** Crisp photography aesthetic. Even lighting. No clutter. Navy/white/gray palette. Shows the finished result or the team in branded uniforms. Modern home backdrop. Photorealistic.
+The `ad_format` input determines the visual approach for every IMAGE_PROMPT you write. Follow these rules precisely.
 
-**Lifestyle:** Warm, aspirational. Family enjoying the result of the service. Natural light. Inviting home interior or exterior. Golden hour if outdoors. Emotionally resonant.
+**Headline Statement:** Bold, typography-forward composition. Strong color block background (navy, charcoal, or brand color). Minimal scene — subject is small or abstract. Copy-dominant aesthetic. High contrast. Think direct-response print ad. No clutter.
 
-**Before & After:** Split composition or dramatic single transformation. Left side: the problem (worn, damaged, inefficient). Right side: the solution (new, clean, modern). High contrast.
+**Offer/Promotion:** Price or deal element visually prominent — large number or callout shape (badge, burst, ribbon). Clean white space. Service imagery softened in background. Crisp, retail-inspired. Even lighting. Professional.
 
-**Text-Heavy:** Bold typography-forward layout. Strong color block background in brand colors. Minimal imagery, maximum impact from the words. Think direct response print ad aesthetic.
+**Testimonial Card:** Portrait-orientation friendly. Warm, slightly lo-fi aesthetic for authenticity. Happy homeowner or family in their home environment. Soft natural light. Credible and approachable. Review stars implied by composition warmth.
 
-**Social Proof:** Testimonial card style or showing real results. Review stars, happy customer, or measurable outcome. Trustworthy and warm. Slightly lo-fi for authenticity.
+**Before & After:** Split composition (left = problem, right = solution) OR dramatic single transformation shot. Left side: worn, damaged, dirty, struggling. Right side: new, clean, modern, gleaming. Extreme contrast between panels. Bold dividing line.
+
+**Pain Point Hook:** Visceral problem visualization. Damaged roof in a storm. Dripping sweat from a broken AC. Overflowing gutters. High-contrast, slightly dramatic. The viewer should feel the problem. Not alarming — relatable.
+
+**Social Proof/Stats:** Clean, professional. Large number or data point as visual anchor. Graph, radial, or bold typographic number overlay on a neutral background. Service team or finished job in background. Conveys scale and credibility.
+
+**Us vs. Them:** Vertical split composition. Left panel: muted gray tones, generic/tired imagery representing "the competition." Right panel: vibrant brand colors, sharp professional imagery representing the client. Clear winner composition.
+
+**Feature Bullets:** Product or service hero shot as center subject. Clean background. Implied space at left or bottom for 3-5 checklist items. Arrows or callout lines pointing to key features. Clean, instructional, benefit-focused.
+
+**Lifestyle/Aspiration:** Warm golden-hour light. Family comfort scene — relaxing in a cool home, gathering around a fireplace, watching a storm from a dry living room. Emotionally resonant. Aspirational but attainable. Natural, candid feel.
+
+**Urgency/Seasonal:** Strong seasonal context — summer sun beating down on a house, winter storm outside warm windows, fall leaves clogging a gutter. Time-pressure visual mood. Slightly dramatic weather. Vivid seasonal color palette.
 
 ---
 

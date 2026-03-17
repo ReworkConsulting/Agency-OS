@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react'
 import { AngleSuggestions } from './AngleSuggestions'
 import { ReferenceImagePicker } from './ReferenceImagePicker'
+import { AdFormatPicker } from './AdFormatPicker'
 import type { AdCreative } from './AdCard'
 
 interface AdCampaignBuilderProps {
@@ -15,13 +16,18 @@ interface AdCampaignBuilderProps {
 
 type Stage = 'idle' | 'generating' | 'complete' | 'error'
 
-const VISUAL_STYLES = ['Clean & Professional', 'Lifestyle', 'Before & After', 'Text-Heavy', 'Social Proof']
-const OBJECTIVES = ['Lead Generation', 'Awareness', 'Retargeting']
-const AD_SIZES = [
-  { value: 'square', label: 'Square', sub: '1:1' },
-  { value: 'portrait', label: 'Portrait', sub: '4:5' },
-  { value: 'story', label: 'Story', sub: '9:16' },
+const OBJECTIVES = [
+  { value: 'Lead Generation', label: 'Lead Gen' },
+  { value: 'Awareness',       label: 'Awareness' },
+  { value: 'Retargeting',     label: 'Retargeting' },
 ]
+
+const AD_SIZES = [
+  { value: 'square',   label: 'Square',   sub: '1:1' },
+  { value: 'portrait', label: 'Portrait', sub: '4:5' },
+  { value: 'story',    label: 'Story',    sub: '9:16' },
+]
+
 const ADS_PER_ANGLE = ['3', '5', '10']
 
 export function AdCampaignBuilder({
@@ -31,17 +37,22 @@ export function AdCampaignBuilder({
   onAdsGenerated,
   onGeneratingChange,
 }: AdCampaignBuilderProps) {
-  // Core inputs
+  // Section 1 — The Job
   const [targetService, setTargetService] = useState(primaryService ?? '')
+  const [objective, setObjective] = useState('Lead Generation')
+
+  // Section 2 — The Angle
   const [selectedAngles, setSelectedAngles] = useState<Set<string>>(new Set())
   const [customAngle, setCustomAngle] = useState('')
+
+  // Section 3 — The Format
+  const [adFormat, setAdFormat] = useState('Headline Statement')
+
+  // Section 4 — Volume
+  const [adSize, setAdSize] = useState<'square' | 'portrait' | 'story'>('square')
   const [adsPerAngle, setAdsPerAngle] = useState('3')
 
-  // Advanced settings
-  const [showAdvanced, setShowAdvanced] = useState(false)
-  const [objective, setObjective] = useState('Lead Generation')
-  const [visualStyle, setVisualStyle] = useState('Clean & Professional')
-  const [adSize, setAdSize] = useState<'square' | 'portrait' | 'story'>('square')
+  // Section 5 — Extras
   const [messagingFocus, setMessagingFocus] = useState('')
   const [referenceImageUrl, setReferenceImageUrl] = useState<string | null>(null)
 
@@ -61,7 +72,6 @@ export function AdCampaignBuilder({
     })
   }
 
-  // All angles to run: AI-selected + custom (if filled)
   const allAngles = [
     ...Array.from(selectedAngles),
     ...(customAngle.trim() ? [customAngle.trim()] : []),
@@ -81,7 +91,7 @@ export function AdCampaignBuilder({
         target_service: targetService,
         campaign_objective: objective,
         angle,
-        visual_style: visualStyle,
+        ad_format: adFormat,
         ad_size: adSize,
         ad_count: adsPerAngle,
         messaging_focus: messagingFocus || undefined,
@@ -113,7 +123,7 @@ export function AdCampaignBuilder({
           if (event.type === 'complete') newAds = event.creatives ?? []
           if (event.type === 'error') throw new Error(event.message)
         } catch {
-          // skip
+          // skip parse errors
         }
       }
     }
@@ -165,195 +175,229 @@ export function AdCampaignBuilder({
   }
 
   return (
-    <div className="border border-zinc-800 rounded-lg overflow-hidden">
-      <div className="px-4 py-3 bg-zinc-900 border-b border-zinc-800 flex items-center justify-between">
-        <h3 className="text-xs font-medium text-zinc-300">Campaign Builder</h3>
+    <div
+      className="rounded-xl overflow-hidden"
+      style={{ border: '1px solid var(--border)', background: 'var(--bg-card)' }}
+    >
+      {/* Header */}
+      <div
+        className="px-5 py-3.5 flex items-center justify-between"
+        style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg-subtle)' }}
+      >
+        <div className="flex items-center gap-2">
+          <BriefcaseIcon />
+          <h3 className="text-xs font-semibold" style={{ color: 'var(--text-1)' }}>Creative Brief</h3>
+        </div>
         {stage === 'complete' && (
-          <span className="text-[10px] text-green-400">Done</span>
+          <span className="text-[10px] font-medium text-green-500">✓ Done</span>
         )}
       </div>
 
-      <div className="p-4 space-y-5">
+      <div className="divide-y" style={{ borderColor: 'var(--border-dim)' }}>
 
-        {/* Target service */}
-        <div>
-          <label className="block text-xs text-zinc-500 mb-1.5">Target Service</label>
-          <input
-            type="text"
-            value={targetService}
-            onChange={(e) => setTargetService(e.target.value)}
-            placeholder="e.g. HVAC Installation"
-            disabled={isGenerating}
-            className="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-500 disabled:opacity-50"
-          />
-        </div>
+        {/* ── 1: THE JOB ─────────────────────────────────────────── */}
+        <section className="px-5 py-4 space-y-3">
+          <SectionLabel number={1} title="THE JOB" />
 
-        {/* AI Angle Suggestions */}
-        <AngleSuggestions
-          clientSlug={clientSlug}
-          hasIcp={hasIcp}
-          selectedAngles={selectedAngles}
-          onToggle={toggleAngle}
-        />
-
-        {/* Custom angle */}
-        <div>
-          <label className="block text-xs text-zinc-500 mb-1.5">Add Custom Angle <span className="text-zinc-700">(optional)</span></label>
-          <input
-            type="text"
-            value={customAngle}
-            onChange={(e) => setCustomAngle(e.target.value)}
-            placeholder="e.g. First-time homeowner buying a new A/C"
-            disabled={isGenerating}
-            className="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-500 disabled:opacity-50"
-          />
-        </div>
-
-        {/* Ads per angle */}
-        <div>
-          <label className="block text-xs text-zinc-500 mb-1.5">Ads per Angle</label>
-          <div className="grid grid-cols-3 gap-2">
-            {ADS_PER_ANGLE.map((n) => (
-              <button
-                key={n}
-                onClick={() => setAdsPerAngle(n)}
-                disabled={isGenerating}
-                className={`py-1.5 rounded border text-xs transition-colors ${
-                  adsPerAngle === n
-                    ? 'border-zinc-500 bg-zinc-800 text-zinc-200'
-                    : 'border-zinc-800 text-zinc-500 hover:border-zinc-700 hover:text-zinc-400'
-                } disabled:opacity-50`}
-              >
-                {n}
-              </button>
-            ))}
-          </div>
-          {allAngles.length > 0 && (
-            <p className="text-[11px] text-zinc-600 mt-1.5">
-              {allAngles.length} angle{allAngles.length !== 1 ? 's' : ''} × {adsPerAngle} = <span className="text-zinc-400">{totalAds} total ads</span>
-            </p>
-          )}
-        </div>
-
-        {/* Advanced settings toggle */}
-        <button
-          onClick={() => setShowAdvanced(!showAdvanced)}
-          className="w-full flex items-center justify-between text-xs text-zinc-500 hover:text-zinc-400 transition-colors py-1"
-        >
-          <span>Advanced Settings</span>
-          <span className={`transition-transform ${showAdvanced ? 'rotate-180' : ''}`}>
-            <ChevronIcon />
-          </span>
-        </button>
-
-        {/* Advanced settings */}
-        {showAdvanced && (
-          <div className="space-y-4 pt-1 border-t border-zinc-800/60">
-
-            {/* Objective */}
-            <div>
-              <label className="block text-xs text-zinc-500 mb-1.5">Campaign Objective</label>
-              <div className="grid grid-cols-3 gap-2">
-                {OBJECTIVES.map((obj) => (
-                  <button
-                    key={obj}
-                    onClick={() => setObjective(obj)}
-                    disabled={isGenerating}
-                    className={`px-2 py-1.5 rounded text-xs transition-colors border ${
-                      objective === obj
-                        ? 'border-zinc-500 bg-zinc-800 text-zinc-200'
-                        : 'border-zinc-800 text-zinc-500 hover:border-zinc-700 hover:text-zinc-400'
-                    } disabled:opacity-50`}
-                  >
-                    {obj}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Visual style */}
-            <div>
-              <label className="block text-xs text-zinc-500 mb-1.5">Visual Style</label>
-              <div className="grid grid-cols-2 gap-1.5">
-                {VISUAL_STYLES.map((style) => (
-                  <button
-                    key={style}
-                    onClick={() => setVisualStyle(style)}
-                    disabled={isGenerating}
-                    className={`px-2 py-1.5 rounded text-xs transition-colors border ${
-                      visualStyle === style
-                        ? 'border-zinc-500 bg-zinc-800 text-zinc-200'
-                        : 'border-zinc-800 text-zinc-500 hover:border-zinc-700 hover:text-zinc-400'
-                    } disabled:opacity-50`}
-                  >
-                    {style}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Ad size */}
-            <div>
-              <label className="block text-xs text-zinc-500 mb-1.5">Ad Size</label>
-              <div className="grid grid-cols-3 gap-2">
-                {AD_SIZES.map((s) => (
-                  <button
-                    key={s.value}
-                    onClick={() => setAdSize(s.value as 'square' | 'portrait' | 'story')}
-                    disabled={isGenerating}
-                    className={`px-2 py-2 rounded border text-xs transition-colors ${
-                      adSize === s.value
-                        ? 'border-zinc-500 bg-zinc-800 text-zinc-200'
-                        : 'border-zinc-800 text-zinc-500 hover:border-zinc-700 hover:text-zinc-400'
-                    } disabled:opacity-50`}
-                  >
-                    <div className="font-medium">{s.label}</div>
-                    <div className="text-zinc-600 text-[10px] mt-0.5">{s.sub}</div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Messaging focus */}
-            <div>
-              <label className="block text-xs text-zinc-500 mb-1.5">Messaging Focus <span className="text-zinc-700">(optional)</span></label>
-              <textarea
-                value={messagingFocus}
-                onChange={(e) => setMessagingFocus(e.target.value)}
-                placeholder="e.g. Emphasize 24/7 availability and same-day service"
-                disabled={isGenerating}
-                rows={2}
-                className="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-500 resize-none disabled:opacity-50"
-              />
-            </div>
-
-            {/* Reference image */}
-            <ReferenceImagePicker
-              clientSlug={clientSlug}
-              value={referenceImageUrl}
-              onChange={setReferenceImageUrl}
+          <div>
+            <label className="block text-[10px] font-medium mb-1.5" style={{ color: 'var(--text-3)' }}>
+              Target Service
+            </label>
+            <input
+              type="text"
+              value={targetService}
+              onChange={(e) => setTargetService(e.target.value)}
+              placeholder="e.g. HVAC Installation, Roof Replacement"
+              disabled={isGenerating}
+              className="w-full rounded-lg px-3 py-2 text-xs focus:outline-none disabled:opacity-50"
+              style={{
+                background: 'var(--bg-subtle)',
+                border: '1px solid var(--border)',
+                color: 'var(--text-1)',
+              }}
             />
           </div>
-        )}
 
-        {/* Generation status */}
+          <div>
+            <label className="block text-[10px] font-medium mb-1.5" style={{ color: 'var(--text-3)' }}>
+              Campaign Objective
+            </label>
+            <div className="grid grid-cols-3 gap-1.5">
+              {OBJECTIVES.map((obj) => (
+                <button
+                  key={obj.value}
+                  onClick={() => setObjective(obj.value)}
+                  disabled={isGenerating}
+                  className="py-1.5 rounded-lg text-[11px] font-medium transition-colors disabled:opacity-50"
+                  style={{
+                    background: objective === obj.value ? 'var(--text-1)' : 'var(--bg-subtle)',
+                    color: objective === obj.value ? 'var(--bg)' : 'var(--text-3)',
+                    border: `1px solid ${objective === obj.value ? 'var(--text-1)' : 'var(--border)'}`,
+                  }}
+                >
+                  {obj.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── 2: THE ANGLE ───────────────────────────────────────── */}
+        <section className="px-5 py-4 space-y-3">
+          <SectionLabel number={2} title="THE ANGLE" />
+
+          <AngleSuggestions
+            clientSlug={clientSlug}
+            hasIcp={hasIcp}
+            selectedAngles={selectedAngles}
+            onToggle={toggleAngle}
+          />
+
+          <div>
+            <label className="block text-[10px] font-medium mb-1.5" style={{ color: 'var(--text-3)' }}>
+              Custom Angle <span style={{ color: 'var(--text-4)' }}>(optional)</span>
+            </label>
+            <input
+              type="text"
+              value={customAngle}
+              onChange={(e) => setCustomAngle(e.target.value)}
+              placeholder="e.g. First-time homeowner replacing old unit"
+              disabled={isGenerating}
+              className="w-full rounded-lg px-3 py-2 text-xs focus:outline-none disabled:opacity-50"
+              style={{
+                background: 'var(--bg-subtle)',
+                border: '1px solid var(--border)',
+                color: 'var(--text-1)',
+              }}
+            />
+          </div>
+        </section>
+
+        {/* ── 3: THE FORMAT ──────────────────────────────────────── */}
+        <section className="px-5 py-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <SectionLabel number={3} title="THE FORMAT" />
+            <span className="text-[10px] font-medium" style={{ color: 'var(--text-2)' }}>{adFormat}</span>
+          </div>
+          <AdFormatPicker value={adFormat} onChange={setAdFormat} disabled={isGenerating} />
+        </section>
+
+        {/* ── 4: VOLUME ──────────────────────────────────────────── */}
+        <section className="px-5 py-4 space-y-3">
+          <SectionLabel number={4} title="VOLUME" />
+
+          <div>
+            <label className="block text-[10px] font-medium mb-1.5" style={{ color: 'var(--text-3)' }}>
+              Ad Size
+            </label>
+            <div className="grid grid-cols-3 gap-1.5">
+              {AD_SIZES.map((s) => (
+                <button
+                  key={s.value}
+                  onClick={() => setAdSize(s.value as typeof adSize)}
+                  disabled={isGenerating}
+                  className="py-2 rounded-lg text-xs transition-colors disabled:opacity-50"
+                  style={{
+                    background: adSize === s.value ? 'var(--text-1)' : 'var(--bg-subtle)',
+                    color: adSize === s.value ? 'var(--bg)' : 'var(--text-3)',
+                    border: `1px solid ${adSize === s.value ? 'var(--text-1)' : 'var(--border)'}`,
+                  }}
+                >
+                  <div className="font-semibold">{s.label}</div>
+                  <div className="text-[9px] mt-0.5 opacity-70">{s.sub}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-medium mb-1.5" style={{ color: 'var(--text-3)' }}>
+              Ads per Angle
+            </label>
+            <div className="grid grid-cols-3 gap-1.5">
+              {ADS_PER_ANGLE.map((n) => (
+                <button
+                  key={n}
+                  onClick={() => setAdsPerAngle(n)}
+                  disabled={isGenerating}
+                  className="py-1.5 rounded-lg text-[11px] font-medium transition-colors disabled:opacity-50"
+                  style={{
+                    background: adsPerAngle === n ? 'var(--text-1)' : 'var(--bg-subtle)',
+                    color: adsPerAngle === n ? 'var(--bg)' : 'var(--text-3)',
+                    border: `1px solid ${adsPerAngle === n ? 'var(--text-1)' : 'var(--border)'}`,
+                  }}
+                >
+                  {n}
+                </button>
+              ))}
+            </div>
+            {allAngles.length > 0 && (
+              <p className="text-[10px] mt-1.5" style={{ color: 'var(--text-4)' }}>
+                {allAngles.length} angle{allAngles.length !== 1 ? 's' : ''} × {adsPerAngle} ={' '}
+                <span style={{ color: 'var(--text-2)' }}>{totalAds} total ads</span>
+              </p>
+            )}
+          </div>
+        </section>
+
+        {/* ── 5: EXTRAS ──────────────────────────────────────────── */}
+        <section className="px-5 py-4 space-y-3">
+          <SectionLabel number={5} title="EXTRAS" subtitle="optional" />
+
+          <div>
+            <label className="block text-[10px] font-medium mb-1.5" style={{ color: 'var(--text-3)' }}>
+              Messaging Notes
+            </label>
+            <textarea
+              value={messagingFocus}
+              onChange={(e) => setMessagingFocus(e.target.value)}
+              placeholder="e.g. Emphasize 24/7 availability and same-day service"
+              disabled={isGenerating}
+              rows={2}
+              className="w-full rounded-lg px-3 py-2 text-xs focus:outline-none resize-none disabled:opacity-50"
+              style={{
+                background: 'var(--bg-subtle)',
+                border: '1px solid var(--border)',
+                color: 'var(--text-1)',
+              }}
+            />
+          </div>
+
+          <ReferenceImagePicker
+            clientSlug={clientSlug}
+            value={referenceImageUrl}
+            onChange={setReferenceImageUrl}
+          />
+        </section>
+
+      </div>
+
+      {/* ── Footer: status + CTA ───────────────────────────────── */}
+      <div
+        className="px-5 py-4 space-y-3"
+        style={{ borderTop: '1px solid var(--border)', background: 'var(--bg-subtle)' }}
+      >
         {isGenerating && (
-          <div className="text-xs text-zinc-500 space-y-1">
+          <div className="space-y-1.5">
             <div className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse flex-shrink-0" />
-              <span>
-                Generating: <span className="text-zinc-300 font-medium">{currentAngleLabel}</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse shrink-0" />
+              <span className="text-[11px]" style={{ color: 'var(--text-3)' }}>
+                Generating:{' '}
+                <span className="font-medium" style={{ color: 'var(--text-1)' }}>{currentAngleLabel}</span>
               </span>
             </div>
             {allAngles.length > 1 && (
-              <div className="ml-3.5">
-                <div className="h-1 rounded-full bg-zinc-800 overflow-hidden">
+              <div>
+                <div className="h-1 rounded-full overflow-hidden" style={{ background: 'var(--bg-hover)' }}>
                   <div
-                    className="h-full bg-zinc-500 rounded-full transition-all"
-                    style={{ width: `${(angleProgress.current / angleProgress.total) * 100}%` }}
+                    className="h-full rounded-full transition-all duration-500"
+                    style={{
+                      width: `${(angleProgress.current / angleProgress.total) * 100}%`,
+                      background: 'var(--text-2)',
+                    }}
                   />
                 </div>
-                <p className="text-[10px] text-zinc-700 mt-1">
+                <p className="text-[10px] mt-1" style={{ color: 'var(--text-4)' }}>
                   Angle {angleProgress.current} of {angleProgress.total}
                 </p>
               </div>
@@ -362,41 +406,74 @@ export function AdCampaignBuilder({
         )}
 
         {stage === 'error' && (
-          <p className="text-xs text-red-400 bg-red-950/30 border border-red-900/40 rounded px-3 py-2">
+          <p className="text-[11px] text-red-400 bg-red-950/30 border border-red-900/40 rounded-lg px-3 py-2">
             {errorMessage}
           </p>
         )}
 
-        {/* Generate / Cancel */}
-        <div className="pt-1">
-          {isGenerating ? (
-            <button
-              onClick={handleCancel}
-              className="w-full py-2.5 rounded border border-zinc-700 text-xs text-zinc-400 hover:border-zinc-600 hover:text-zinc-300 transition-colors"
-            >
-              Cancel
-            </button>
-          ) : (
-            <button
-              onClick={handleGenerate}
-              disabled={!canGenerate}
-              className="w-full py-2.5 rounded bg-white text-black text-xs font-medium hover:bg-zinc-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              {canGenerate
-                ? `Generate ${totalAds} Ad${totalAds !== 1 ? 's' : ''}`
-                : 'Select at least one angle'}
-            </button>
-          )}
-        </div>
+        {isGenerating ? (
+          <button
+            onClick={handleCancel}
+            className="w-full py-2.5 rounded-lg text-xs font-medium transition-colors"
+            style={{ border: '1px solid var(--border)', color: 'var(--text-2)', background: 'var(--bg-card)' }}
+          >
+            Cancel Generation
+          </button>
+        ) : (
+          <button
+            onClick={handleGenerate}
+            disabled={!canGenerate}
+            className="w-full py-2.5 rounded-lg text-sm font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{
+              background: 'var(--accent)',
+              color: 'var(--accent-fg)',
+            }}
+          >
+            {canGenerate
+              ? `Generate ${totalAds} Ad${totalAds !== 1 ? 's' : ''}`
+              : 'Select at least one angle'}
+          </button>
+        )}
       </div>
     </div>
   )
 }
 
-function ChevronIcon() {
+/* ── Sub-components ──────────────────────────────────────────────────── */
+
+function SectionLabel({
+  number,
+  title,
+  subtitle,
+}: {
+  number: number
+  title: string
+  subtitle?: string
+}) {
   return (
-    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-      <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <div className="flex items-center gap-2">
+      <span
+        className="w-4 h-4 rounded text-[9px] font-bold flex items-center justify-center shrink-0"
+        style={{ background: 'var(--bg-hover)', color: 'var(--text-3)', border: '1px solid var(--border-dim)' }}
+      >
+        {number}
+      </span>
+      <p className="text-[10px] font-bold tracking-widest uppercase" style={{ color: 'var(--text-3)' }}>
+        {title}
+      </p>
+      {subtitle && (
+        <span className="text-[10px]" style={{ color: 'var(--text-4)' }}>{subtitle}</span>
+      )}
+    </div>
+  )
+}
+
+function BriefcaseIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" style={{ color: 'var(--text-3)' }}>
+      <rect x="1" y="5" width="14" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.3" />
+      <path d="M5 5V3.5A1.5 1.5 0 0 1 6.5 2h3A1.5 1.5 0 0 1 11 3.5V5" stroke="currentColor" strokeWidth="1.3" />
+      <path d="M1 9.5h14" stroke="currentColor" strokeWidth="1.3" />
     </svg>
   )
 }
