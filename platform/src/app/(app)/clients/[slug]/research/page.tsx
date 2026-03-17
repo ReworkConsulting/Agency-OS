@@ -3,6 +3,7 @@ import { createServerClient } from '@/lib/supabase/server'
 import { ClientNav } from '@/components/layout/ClientNav'
 import { WorkflowPanel } from '@/components/workflow/WorkflowPanel'
 import { IcpDocument } from '@/components/workflow/IcpDocument'
+import { IcpImport } from '@/components/workflow/IcpImport'
 import { buildIcpTool } from '@/lib/tool-registry/tools/build-icp'
 
 async function getResearchData(slug: string) {
@@ -136,6 +137,13 @@ export default async function ResearchPage({
                 />
               </div>
 
+              <div>
+                <p className="text-[10px] font-bold tracking-widest uppercase mb-3" style={{ color: 'var(--text-3)' }}>
+                  Import ICP
+                </p>
+                <IcpImport clientSlug={slug} />
+              </div>
+
               {/* Export history */}
               {icpExports.length > 0 && (
                 <div>
@@ -207,6 +215,12 @@ export default async function ResearchPage({
               prefills={prefills}
               initialOutputs={outputs as unknown as Parameters<typeof WorkflowPanel>[0]['initialOutputs']}
             />
+            <div className="mt-6 pt-6" style={{ borderTop: '1px solid var(--border-dim)' }}>
+              <p className="text-xs font-medium mb-3" style={{ color: 'var(--text-3)' }}>
+                Already have an ICP?
+              </p>
+              <IcpImport clientSlug={slug} />
+            </div>
           </div>
         )}
       </div>

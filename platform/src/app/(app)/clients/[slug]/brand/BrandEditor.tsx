@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import Image from 'next/image'
 
 interface BrandEditorProps {
@@ -22,6 +22,28 @@ export function BrandEditor({
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    setError(null)
+    try {
+      const form = new FormData()
+      form.append('file', file)
+      const res = await fetch(`/api/clients/${clientSlug}/upload-logo`, { method: 'POST', body: form })
+      const data = await res.json()
+      if (!res.ok) { setError(data.error ?? 'Upload failed'); return }
+      setLogoUrl(data.url)
+    } catch {
+      setError('Upload failed — please try again')
+    } finally {
+      setUploading(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
 
   const handleSave = async () => {
     setSaving(true)
@@ -128,17 +150,48 @@ export function BrandEditor({
             Brand Assets
           </p>
 
-          {/* Logo URL */}
+          {/* Logo Upload */}
           <div className="mb-4">
             <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-2)' }}>
-              Logo URL
+              Logo
             </label>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp,image/svg+xml"
+              className="hidden"
+              onChange={handleLogoUpload}
+            />
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="px-3 py-2 text-xs font-medium rounded-lg transition-all"
+                style={{
+                  background: 'var(--bg-hover)',
+                  border: '1px solid var(--border)',
+                  color: 'var(--text-1)',
+                  opacity: uploading ? 0.5 : 1,
+                  cursor: uploading ? 'not-allowed' : 'pointer',
+                }}
+              >
+                {uploading ? 'Uploading…' : logoUrl ? 'Replace Logo' : 'Upload Logo'}
+              </button>
+              {logoUrl && (
+                <span className="text-[11px] truncate max-w-[200px]" style={{ color: 'var(--text-4)' }}>
+                  {logoUrl.split('/').pop()}
+                </span>
+              )}
+            </div>
+            <p className="text-[11px] mt-1.5" style={{ color: 'var(--text-4)' }}>
+              PNG, SVG, JPG, or WebP — max 5MB. Or paste a URL below.
+            </p>
             <input
               type="url"
               value={logoUrl}
               onChange={e => setLogoUrl(e.target.value)}
               placeholder="https://example.com/logo.png"
-              className="w-full px-3 py-2 rounded-lg text-sm"
+              className="w-full px-3 py-2 rounded-lg text-sm mt-2"
               style={{
                 background: 'var(--bg-subtle)',
                 border: '1px solid var(--border)',
@@ -146,9 +199,6 @@ export function BrandEditor({
                 outline: 'none',
               }}
             />
-            <p className="text-[11px] mt-1.5" style={{ color: 'var(--text-4)' }}>
-              PNG or SVG. Paste a direct image URL or the hosted image URL from your CDN.
-            </p>
           </div>
 
           {/* Color pickers */}
