@@ -119,18 +119,24 @@ export function WorkflowPanel({
                         role="switch"
                         aria-checked={Boolean(inputs[input.key])}
                         onClick={() => setInputs(p => ({ ...p, [input.key]: !p[input.key] }))}
-                        className="relative w-9 h-5 rounded-full transition-colors shrink-0"
-                        style={{ background: inputs[input.key] ? 'var(--text-1)' : 'var(--bg-hover)', border: '1px solid var(--border)' }}
+                        className="relative w-9 h-5 rounded-full shrink-0"
+                        style={{
+                          background: inputs[input.key] ? '#2563eb' : 'var(--bg-hover)',
+                          border: `1px solid ${inputs[input.key] ? '#2563eb' : 'var(--border)'}`,
+                          transition: 'background-color 0.2s ease, border-color 0.2s ease',
+                        }}
                       >
                         <span
-                          className="absolute top-0.5 w-4 h-4 rounded-full transition-transform"
+                          className="absolute top-0.5 w-4 h-4 rounded-full bg-white"
                           style={{
-                            background: inputs[input.key] ? 'var(--bg)' : 'var(--text-3)',
-                            transform: inputs[input.key] ? 'translateX(17px)' : 'translateX(2px)',
+                            left: inputs[input.key] ? 'calc(100% - 18px)' : '2px',
+                            transition: 'left 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                           }}
                         />
                       </button>
-                      <span className="text-xs" style={{ color: 'var(--text-2)' }}>{input.label}</span>
+                      <span className="text-xs" style={{ color: inputs[input.key] ? 'var(--text-1)' : 'var(--text-3)' }}>
+                        {inputs[input.key] ? 'On' : 'Off'}
+                      </span>
                     </label>
                   ) : input.type === 'textarea' ? (
                     <textarea

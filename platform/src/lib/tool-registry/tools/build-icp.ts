@@ -5,7 +5,7 @@ export const buildIcpTool: ToolDefinition = {
   label: 'Build ICP Research Document',
   description:
     'Scrapes website, Google reviews, competitor reviews, Reddit, and social data. Synthesizes a complete six-profile ICP document: Brand Voice, Ideal Customer Profile, Offer Extraction, Messaging & Positioning, Marketing Channels, and Customer Acquisition.',
-  workflow_file: 'workflows/build_icp.md',
+  workflow_file: 'workflows/build_icp_platform.md',
   output_type: 'icp',
   status: 'active',
   context_needs: ['overview', 'services', 'competitors', 'reviews', 'transcript'],

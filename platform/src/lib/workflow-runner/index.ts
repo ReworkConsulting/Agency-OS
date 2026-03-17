@@ -256,12 +256,24 @@ ${inputLines || 'None provided.'}
 Follow the workflow step by step. Produce complete, high-quality output. Do not truncate.`
 }
 
+function extractIcpContent(fullOutput: string): string {
+  const start = fullOutput.indexOf('---ICP_DOCUMENT_START---')
+  const end = fullOutput.indexOf('---ICP_DOCUMENT_END---')
+  if (start !== -1 && end !== -1 && end > start) {
+    return fullOutput.slice(start + '---ICP_DOCUMENT_START---'.length, end).trim()
+  }
+  // Fallback: return the full output if delimiters are missing
+  return fullOutput.trim()
+}
+
 async function persistICPDocument(
   supabase: ReturnType<typeof createServerClient>,
   clientId: string,
-  icpContent: string,
+  fullOutput: string,
   hasTranscript: boolean
 ): Promise<void> {
+  const icpContent = extractIcpContent(fullOutput)
+
   // Get current version number
   const { data: existing } = await supabase
     .from('icp_documents')
