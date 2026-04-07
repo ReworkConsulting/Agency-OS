@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import { useEffect, useState, useRef } from 'react'
 import { useTheme } from 'next-themes'
-import { useRouter } from 'next/navigation'
 
 interface UserInfo {
   id: string
@@ -35,7 +34,6 @@ export function TopBar({ user, isAdmin }: TopBarProps) {
   const notifRef = useRef<HTMLDivElement>(null)
   const profileRef = useRef<HTMLDivElement>(null)
   const { resolvedTheme, setTheme } = useTheme()
-  const router = useRouter()
 
   useEffect(() => setMounted(true), [])
 
@@ -74,7 +72,7 @@ export function TopBar({ user, isAdmin }: TopBarProps) {
   async function handleSignOut() {
     setSigningOut(true)
     await fetch('/api/auth/signout', { method: 'POST' })
-    router.push('/login')
+    window.location.href = '/login'
   }
 
   const userInitial = (user?.full_name || user?.email || 'U').charAt(0).toUpperCase()
