@@ -1,147 +1,195 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { createServerClient } from '@/lib/supabase/server'
-import { formatDateShort } from '@/lib/format-date'
+import { detectAndSyncAlerts } from '@/lib/alerts'
+import { AlertFeed } from '@/components/dashboard/AlertFeed'
+import { ClientHealthGrid } from '@/components/dashboard/ClientHealthGrid'
+import { AlertRecord } from '@/components/alerts/AlertModal'
 
 async function getDashboardData() {
   try {
     const supabase = createServerClient()
-    const [clientsRes, runsRes, outputsRes] = await Promise.all([
-      supabase.from('clients').select('id, slug, company_name, logo_url, primary_service, service_area, industry').eq('status', 'active').order('company_name'),
-      supabase.from('workflow_runs').select('id, tool_id, status, started_at, client_id, clients!inner(company_name, logo_url)').order('started_at', { ascending: false }).limit(8),
-      supabase.from('workflow_outputs').select('id', { count: 'exact', head: true }),
+
+    // Auto-detect and sync system alerts
+    await detectAndSyncAlerts(supabase)
+
+    const thirtyDaysAgo = new Date()
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+
+    const [clientsRes, tasksRes, alertsRes, runsRes, kpisRes, usersRes] = await Promise.all([
+      supabase.from('clients').select('id, slug, company_name, logo_url').eq('status', 'active').order('company_name'),
+      supabase.from('tasks').select('id, status, priority, due_date, client_id, assigned_to, title').neq('status', 'done'),
+      supabase.from('alerts').select(`*, clients(id, slug, company_name), assignee:assigned_to(id, raw_user_meta_data)`).neq('status', 'resolved').order('created_at', { ascending: false }),
+      supabase.from('workflow_runs').select('id, tool_id, status, started_at, client_id, clients!inner(company_name, logo_url)').order('started_at', { ascending: false }).limit(10),
+      supabase.from('kpi_snapshots').select('client_id, period').gte('period', thirtyDaysAgo.toISOString().split('T')[0]),
+      supabase.from('user_profiles').select('id, full_name, email'),
     ])
+
+    const clients = clientsRes.data ?? []
+    const tasks = tasksRes.data ?? []
+    const alerts = (alertsRes.data ?? []) as AlertRecord[]
+    const recentRuns = runsRes.data ?? []
+    const recentKpis = kpisRes.data ?? []
+    const teamMembers = (usersRes.data ?? []).map((u) => ({ id: u.id, full_name: u.full_name ?? '', email: u.email ?? '' }))
+
+    const today = new Date().toISOString().split('T')[0]
+    const overdueTasks = tasks.filter((t) => t.due_date && t.due_date < today)
+    const clientsWithKpis = new Set(recentKpis.map((k) => k.client_id))
+    const clientsWithRuns = new Set(recentRuns.map((r) => r.client_id))
+
+    const clientHealth = clients.map((c) => {
+      const clientTasks = tasks.filter((t) => t.client_id === c.id)
+      const clientOverdue = overdueTasks.filter((t) => t.client_id === c.id)
+      const clientAlerts = alerts.filter((a) => a.client_id === c.id)
+      const clientCritical = clientAlerts.filter((a) => a.severity === 'critical')
+      const lastKpi = recentKpis.filter((k) => k.client_id === c.id).sort((a, b) => b.period.localeCompare(a.period))[0]
+      const lastRun = recentRuns.filter((r) => r.client_id === c.id)[0]
+      return {
+        id: c.id, slug: c.slug, company_name: c.company_name, logo_url: c.logo_url ?? null,
+        openTasks: clientTasks.length, overdueTasks: clientOverdue.length,
+        openAlerts: clientAlerts.length, criticalAlerts: clientCritical.length,
+        lastKpiDate: lastKpi?.period ?? null, lastRunDate: lastRun?.started_at ?? null,
+      }
+    })
+
+    const unassigned = tasks.filter((t) => !t.assigned_to)
+    const activity = recentRuns.slice(0, 6).map((r) => {
+      const client = r.clients as unknown as { company_name: string }
+      return { id: r.id, label: r.tool_id.replace(/_/g, ' '), sub: client?.company_name ?? '', status: r.status, date: r.started_at }
+    })
+
     return {
-      clients: clientsRes.data ?? [],
-      recentRuns: runsRes.data ?? [],
-      outputCount: outputsRes.count ?? 0,
+      tasks, alerts, teamMembers, clientHealth, unassigned, activity,
+      stats: {
+        activeClients: clients.length,
+        openTasks: tasks.length,
+        overdueTasks: overdueTasks.length,
+        openAlerts: alerts.length,
+        criticalAlerts: alerts.filter((a) => a.severity === 'critical').length,
+        outputsThisMonth: recentRuns.filter((r) => {
+          const d = new Date(r.started_at); const now = new Date()
+          return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear() && r.status === 'completed'
+        }).length,
+        unassignedTasks: unassigned.length,
+        staleClients: clients.filter((c) => !clientsWithRuns.has(c.id)).length,
+        missingKpiClients: clients.filter((c) => !clientsWithKpis.has(c.id)).length,
+      },
     }
-  } catch {
-    return { clients: [], recentRuns: [], outputCount: 0 }
+  } catch (e) {
+    console.error('[dashboard]', e)
+    return {
+      tasks: [], alerts: [], teamMembers: [], clientHealth: [], unassigned: [], activity: [],
+      stats: { activeClients: 0, openTasks: 0, overdueTasks: 0, openAlerts: 0, criticalAlerts: 0, outputsThisMonth: 0, unassignedTasks: 0, staleClients: 0, missingKpiClients: 0 },
+    }
   }
 }
 
-const QUICK_ACTIONS = [
-  { label: 'Add Client', description: 'Onboard a new client workspace', href: '/clients/new', icon: '＋' },
-  { label: 'View All Clients', description: 'See your active client roster', href: '/clients', icon: '◈' },
-]
-
 export default async function DashboardPage() {
-  const { clients, recentRuns, outputCount } = await getDashboardData()
+  const { alerts, teamMembers, clientHealth, activity, stats, tasks } = await getDashboardData()
 
-  const completedRuns = recentRuns.filter(r => r.status === 'completed').length
-  const failedRuns = recentRuns.filter(r => r.status === 'failed').length
+  const today = new Date().toISOString().split('T')[0]
+  const topTasks = [...tasks]
+    .sort((a, b) => {
+      const p: Record<string, number> = { urgent: 0, high: 1, normal: 2, low: 3 }
+      return (p[a.priority] ?? 2) - (p[b.priority] ?? 2)
+    })
+    .slice(0, 5)
+
+  const clientsForFeed = clientHealth.map((c) => ({ id: c.id, company_name: c.company_name }))
 
   return (
-    <div className="p-8 max-w-5xl animate-fade-in">
+    <div className="p-8 max-w-[1200px] animate-fade-in">
       {/* Header */}
-      <div className="mb-10">
-        <h1 className="text-2xl font-semibold mb-1" style={{ color: 'var(--text-1)' }}>Dashboard</h1>
-        <p className="text-sm" style={{ color: 'var(--text-3)' }}>Welcome back to Agency OS.</p>
+      <div className="mb-8">
+        <h1 className="text-2xl font-semibold mb-1" style={{ color: 'var(--text-1)' }}>Mission Control</h1>
+        <p className="text-sm" style={{ color: 'var(--text-3)' }} suppressHydrationWarning>
+          {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+        </p>
       </div>
 
-      {/* Stats row */}
-      <div className="grid grid-cols-4 gap-4 mb-10">
-        <StatCard label="Active Clients" value={String(clients.length)} sub="on retainer" />
-        <StatCard label="Outputs Generated" value={String(outputCount)} sub="all time" />
-        <StatCard label="Recent Runs" value={String(recentRuns.length)} sub="last 8" />
-        <StatCard
-          label="Success Rate"
-          value={recentRuns.length ? `${Math.round((completedRuns / recentRuns.length) * 100)}%` : '—'}
-          sub={failedRuns > 0 ? `${failedRuns} failed` : 'clean'}
-          accent={failedRuns > 0 ? 'yellow' : 'green'}
-        />
+      {/* ── Row 1: Status cards ── */}
+      <div className="grid grid-cols-5 gap-4 mb-8">
+        <StatCard label="Active Clients" value={String(stats.activeClients)} sub="on retainer" href="/clients" />
+        <StatCard label="Open Tasks" value={String(stats.openTasks)} sub={stats.overdueTasks > 0 ? `${stats.overdueTasks} overdue` : 'on track'} accent={stats.overdueTasks > 0 ? 'red' : 'neutral'} href="/tasks" />
+        <StatCard label="Open Alerts" value={String(stats.openAlerts)} sub={stats.criticalAlerts > 0 ? `${stats.criticalAlerts} critical` : stats.openAlerts > 0 ? 'needs review' : 'all clear'} accent={stats.criticalAlerts > 0 ? 'red' : stats.openAlerts > 0 ? 'yellow' : 'green'} href="/alerts" />
+        <StatCard label="Outputs This Month" value={String(stats.outputsThisMonth)} sub="completed" accent="neutral" />
+        <StatCard label="Unassigned Tasks" value={String(stats.unassignedTasks)} sub={stats.unassignedTasks > 0 ? 'need assignment' : 'all assigned'} accent={stats.unassignedTasks > 0 ? 'yellow' : 'green'} href="/tasks" />
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
-        {/* Active clients */}
+      {/* ── Row 2: Client health + Alerts ── */}
+      <div className="grid grid-cols-3 gap-6 mb-8">
         <div className="col-span-2">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-medium" style={{ color: 'var(--text-1)' }}>Active Clients</h2>
-            <Link href="/clients" className="text-xs transition-colors" style={{ color: 'var(--text-3)' }}>
-              View all →
-            </Link>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold" style={{ color: 'var(--text-1)' }}>Client Health</h2>
+            <Link href="/clients" className="text-xs" style={{ color: 'var(--text-3)' }}>View all →</Link>
           </div>
-          <div className="space-y-2">
-            {clients.length === 0 ? (
-              <div className="rounded-lg p-8 text-center" style={{ border: '1px solid var(--border)' }}>
-                <p className="text-xs" style={{ color: 'var(--text-3)' }}>No clients yet.</p>
-                <Link href="/clients/new" className="mt-2 inline-block text-xs underline" style={{ color: 'var(--text-1)' }}>
-                  Add first client
-                </Link>
-              </div>
-            ) : clients.map(client => (
-              <Link key={client.slug} href={`/clients/${client.slug}`}
-                className="flex items-center gap-4 p-4 rounded-lg transition-all group"
-                style={{ border: '1px solid var(--border)', background: 'var(--bg-card)' }}
-              >
-                <div
-                  className="w-9 h-9 rounded-lg flex items-center justify-center overflow-hidden shrink-0"
-                  style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border)' }}
-                >
-                  {client.logo_url
-                    ? <Image src={client.logo_url} alt="" width={32} height={32} className="object-contain p-1" unoptimized />
-                    : <span className="text-sm font-bold" style={{ color: 'var(--text-3)' }}>{client.company_name.charAt(0)}</span>
-                  }
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate" style={{ color: 'var(--text-1)' }}>{client.company_name}</p>
-                  <p className="text-xs truncate mt-0.5" style={{ color: 'var(--text-3)' }}>{client.primary_service ?? client.industry ?? ''}</p>
-                </div>
-                <div className="text-right shrink-0">
-                  {client.service_area && <p className="text-xs truncate max-w-[120px]" style={{ color: 'var(--text-3)' }}>{client.service_area.split('(')[0].trim()}</p>}
-                  <span className="text-xs" style={{ color: 'var(--text-4)' }}>→</span>
-                </div>
-              </Link>
-            ))}
-          </div>
+          <ClientHealthGrid clients={clientHealth} />
         </div>
-
-        {/* Right column */}
-        <div className="space-y-6">
-          {/* Quick actions */}
-          <div>
-            <h2 className="text-sm font-medium mb-4" style={{ color: 'var(--text-1)' }}>Quick Actions</h2>
-            <div className="space-y-2">
-              {QUICK_ACTIONS.map(action => (
-                <Link key={action.href} href={action.href}
-                  className="flex items-start gap-3 p-3 rounded-lg transition-all group"
-                  style={{ border: '1px solid var(--border)', background: 'var(--bg-card)' }}
-                >
-                  <span className="text-sm mt-0.5" style={{ color: 'var(--text-3)' }}>{action.icon}</span>
-                  <div>
-                    <p className="text-xs font-medium" style={{ color: 'var(--text-1)' }}>{action.label}</p>
-                    <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-3)' }}>{action.description}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
+        <div>
+          <div className="mb-3">
+            <h2 className="text-sm font-semibold" style={{ color: 'var(--text-1)' }}>Active Alerts</h2>
           </div>
+          <AlertFeed initialAlerts={alerts} clients={clientsForFeed} teamMembers={teamMembers} />
+        </div>
+      </div>
 
-          {/* Recent activity */}
-          <div>
-            <h2 className="text-sm font-medium mb-4" style={{ color: 'var(--text-1)' }}>Recent Activity</h2>
-            {recentRuns.length === 0 ? (
-              <p className="text-xs px-1" style={{ color: 'var(--text-3)' }}>No workflow runs yet.</p>
+      {/* ── Row 3: Open tasks + Recent activity ── */}
+      <div className="grid grid-cols-2 gap-6">
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold" style={{ color: 'var(--text-1)' }}>Open Tasks</h2>
+            <Link href="/tasks" className="text-xs" style={{ color: 'var(--text-3)' }}>View board →</Link>
+          </div>
+          <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+            {topTasks.length === 0 ? (
+              <div className="p-8 text-center">
+                <p className="text-xs" style={{ color: 'var(--text-3)' }}>No open tasks.</p>
+                <Link href="/tasks" className="mt-1 inline-block text-xs underline" style={{ color: 'var(--text-1)' }}>Go to board</Link>
+              </div>
             ) : (
-              <div className="space-y-2">
-                {recentRuns.slice(0, 5).map(run => {
-                  const client = run.clients as unknown as { company_name: string; logo_url: string | null }
+              <>
+                {topTasks.map((task, i) => {
+                  const overdue = task.due_date && task.due_date < today
+                  const pc: Record<string, string> = { low: '#6b7280', normal: '#3b82f6', high: '#f59e0b', urgent: '#ef4444' }
                   return (
-                    <div key={run.id} className="flex items-center gap-3 py-2" style={{ borderBottom: '1px solid var(--border-dim)' }}>
-                      <RunDot status={run.status} />
+                    <div key={task.id} className="flex items-center gap-3 px-4 py-3" style={{ borderBottom: i < topTasks.length - 1 ? '1px solid var(--border)' : undefined, background: 'var(--bg-card)' }}>
+                      <span className="w-2 h-2 rounded-full shrink-0" style={{ background: pc[task.priority] ?? '#3b82f6' }} />
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs truncate" style={{ color: 'var(--text-1)' }}>{run.tool_id.replace(/_/g, ' ')}</p>
-                        <p className="text-[11px] truncate" style={{ color: 'var(--text-3)' }}>{client?.company_name}</p>
+                        <p className="text-sm truncate" style={{ color: 'var(--text-1)' }}>{task.title}</p>
+                        <p className="text-[11px]" style={{ color: 'var(--text-3)' }}>
+                          {task.status.replace('_', ' ')}
+                          {task.due_date && <span style={{ color: overdue ? '#ef4444' : 'var(--text-3)', marginLeft: 6 }}>{overdue ? '⚠ ' : ''}Due {new Date(task.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>}
+                        </p>
                       </div>
-                      <span className="text-[10px] shrink-0" style={{ color: 'var(--text-4)' }}>
-                        {formatDateShort(run.started_at)}
-                      </span>
                     </div>
                   )
                 })}
-              </div>
+                <div className="px-4 py-2" style={{ borderTop: '1px solid var(--border)', background: 'var(--bg-subtle)' }}>
+                  <Link href="/tasks" className="text-xs" style={{ color: 'var(--text-3)' }}>View all {stats.openTasks} tasks →</Link>
+                </div>
+              </>
             )}
+          </div>
+        </div>
+
+        <div>
+          <div className="mb-3">
+            <h2 className="text-sm font-semibold" style={{ color: 'var(--text-1)' }}>Recent Activity</h2>
+          </div>
+          <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+            {activity.length === 0 ? (
+              <div className="p-8 text-center"><p className="text-xs" style={{ color: 'var(--text-3)' }}>No recent activity.</p></div>
+            ) : activity.map((item, i) => (
+              <div key={item.id} className="flex items-center gap-3 px-4 py-3" style={{ borderBottom: i < activity.length - 1 ? '1px solid var(--border)' : undefined, background: 'var(--bg-card)' }}>
+                <RunDot status={item.status} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm truncate capitalize" style={{ color: 'var(--text-1)' }}>{item.label}</p>
+                  <p className="text-[11px] truncate" style={{ color: 'var(--text-3)' }}>{item.sub}</p>
+                </div>
+                <span className="text-[10px] shrink-0" style={{ color: 'var(--text-4)' }}>
+                  {new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -149,25 +197,21 @@ export default async function DashboardPage() {
   )
 }
 
-function StatCard({ label, value, sub, accent = 'neutral' }: {
-  label: string; value: string; sub: string; accent?: 'green' | 'yellow' | 'neutral'
+function StatCard({ label, value, sub, accent = 'neutral', href }: {
+  label: string; value: string; sub: string; accent?: 'green' | 'yellow' | 'red' | 'neutral'; href?: string
 }) {
-  const subColor = accent === 'green' ? '#16a34a' : accent === 'yellow' ? '#ca8a04' : 'var(--text-3)'
-  return (
-    <div className="rounded-lg p-4" style={{ border: '1px solid var(--border)', background: 'var(--bg-card)' }}>
+  const subColor = accent === 'green' ? '#16a34a' : accent === 'yellow' ? '#ca8a04' : accent === 'red' ? '#ef4444' : 'var(--text-3)'
+  const card = (
+    <div className="rounded-lg p-4 transition-all" style={{ border: '1px solid var(--border)', background: 'var(--bg-card)' }}>
       <p className="text-xs mb-2" style={{ color: 'var(--text-3)' }}>{label}</p>
       <p className="text-2xl font-semibold" style={{ color: 'var(--text-1)' }}>{value}</p>
       <p className="text-[11px] mt-1" style={{ color: subColor }}>{sub}</p>
     </div>
   )
+  return href ? <Link href={href} className="block hover:opacity-80 transition-opacity">{card}</Link> : card
 }
 
 function RunDot({ status }: { status: string }) {
-  const colors: Record<string, string> = {
-    completed: 'bg-green-500',
-    running: 'bg-blue-400 animate-pulse',
-    failed: 'bg-red-500',
-    cancelled: 'bg-zinc-400',
-  }
+  const colors: Record<string, string> = { completed: 'bg-green-500', running: 'bg-blue-400 animate-pulse', failed: 'bg-red-500', cancelled: 'bg-zinc-400' }
   return <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${colors[status] ?? 'bg-zinc-400'}`} />
 }

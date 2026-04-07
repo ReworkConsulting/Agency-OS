@@ -24,15 +24,20 @@ const ALL_CLIENT_TOOLS = [
   { label: 'Overview',  segment: '',         icon: <HomeIcon />,     menu: 'overview' },
   { label: 'Research',  segment: 'research', icon: <SearchIcon />,   menu: 'research' },
   { label: 'Ads',       segment: 'ads',      icon: <BoltIcon />,     menu: 'ads' },
+  { label: 'Scripting', segment: 'videos',   icon: <VideoIcon />,    menu: 'videos' },
   { label: 'SEO',       segment: 'seo',      icon: <TrendingIcon />, menu: 'seo' },
-  { label: 'Reports',   segment: 'reports',  icon: <ChartIcon />,    menu: 'reports' },
+  { label: 'KPIs',      segment: 'kpis',     icon: <ChartIcon />,    menu: 'kpis' },
+  { label: 'Reports',   segment: 'reports',  icon: <ReportsIcon />,  menu: 'reports' },
   { label: 'Brand',     segment: 'brand',    icon: <SwatchIcon />,   menu: 'brand' },
 ]
 
 const TOP_NAV = [
-  { label: 'Dashboard',  href: '/',            icon: <GridIcon /> },
-  { label: 'Clients',    href: '/clients',     icon: <UsersIcon /> },
-  { label: 'Ad Library', href: '/ads/library', icon: <BookmarkIcon /> },
+  { label: 'Mission Control', href: '/',            icon: <GridIcon /> },
+  { label: 'Clients',         href: '/clients',     icon: <UsersIcon /> },
+  { label: 'Tasks',           href: '/tasks',       icon: <CheckIcon /> },
+  { label: 'Alerts',          href: '/alerts',      icon: <AlertIcon /> },
+  { label: 'Ad Library',      href: '/ads/library',      icon: <BookmarkIcon /> },
+  { label: 'Script Library',  href: '/scripts/library',  icon: <ScriptLibIcon /> },
 ]
 
 export function Sidebar({ clients = [], user, allowedMenus = [] }: SidebarProps) {
@@ -339,4 +344,19 @@ function BookmarkIcon() {
 }
 function GearIcon() {
   return <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" strokeWidth="1.4"/><path d="M8 1v1.5M8 13.5V15M1 8h1.5M13.5 8H15M3.05 3.05l1.06 1.06M11.89 11.89l1.06 1.06M3.05 12.95l1.06-1.06M11.89 4.11l1.06-1.06" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg>
+}
+function CheckIcon() {
+  return <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="14" height="14" rx="3" stroke="currentColor" strokeWidth="1.4"/><path d="M4.5 8l2.5 2.5 4.5-4.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
+}
+function AlertIcon() {
+  return <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 1.5L1 13.5h14L8 1.5z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/><path d="M8 6v3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/><circle cx="8" cy="11.5" r="0.75" fill="currentColor"/></svg>
+}
+function ReportsIcon() {
+  return <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2" y="1" width="12" height="14" rx="1.5" stroke="currentColor" strokeWidth="1.4"/><path d="M5 5h6M5 8h6M5 11h4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg>
+}
+function VideoIcon() {
+  return <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="10" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.4"/><path d="M11 6l4-2v8l-4-2V6z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/></svg>
+}
+function ScriptLibIcon() {
+  return <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="2" width="10" height="12" rx="1.5" stroke="currentColor" strokeWidth="1.4"/><path d="M11 5l4-2v10l-4-2V5z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/><path d="M4 6h5M4 9h4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg>
 }

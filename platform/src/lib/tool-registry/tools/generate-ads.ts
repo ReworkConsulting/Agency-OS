@@ -13,7 +13,7 @@ export const generateAdsTool: ToolDefinition = {
   // Ad copy requires an ICP to exist first — otherwise output is generic.
   prerequisites: ['build_icp'],
   model: 'claude-sonnet-4-6',
-  max_tokens: 8000,
+  max_tokens: 16000,
   required_inputs: [
     {
       key: 'target_service',

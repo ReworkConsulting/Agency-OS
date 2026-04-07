@@ -4,6 +4,7 @@ import { onboardClientTool } from './tools/onboard-client'
 import { generateAdsTool } from './tools/generate-ads'
 import { seoAuditTool } from './tools/seo-audit'
 import { generateReportTool } from './tools/generate-report'
+import { generateVideoScriptsTool } from './tools/generate-video-scripts'
 
 const REGISTRY: Record<string, ToolDefinition> = {
   build_icp: buildIcpTool,
@@ -11,6 +12,7 @@ const REGISTRY: Record<string, ToolDefinition> = {
   generate_ads: generateAdsTool,
   seo_audit: seoAuditTool,
   generate_report: generateReportTool,
+  generate_video_scripts: generateVideoScriptsTool,
 }
 
 export function getTool(toolId: string): ToolDefinition | null {
@@ -21,7 +23,7 @@ export function getAllTools(): ToolDefinition[] {
   return Object.values(REGISTRY)
 }
 
-type Module = 'research' | 'ads' | 'seo' | 'reports' | 'brand'
+type Module = 'research' | 'ads' | 'seo' | 'reports' | 'brand' | 'videos'
 
 const MODULE_MAP: Record<Module, string[]> = {
   research: ['build_icp'],
@@ -29,6 +31,7 @@ const MODULE_MAP: Record<Module, string[]> = {
   seo: ['seo_audit'],
   reports: ['generate_report'],
   brand: [],
+  videos: ['generate_video_scripts'],
 }
 
 export function getToolsForModule(module: Module): ToolDefinition[] {

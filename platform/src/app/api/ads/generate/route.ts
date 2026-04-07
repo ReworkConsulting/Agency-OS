@@ -64,13 +64,15 @@ function parseAdsFromOutput(output: string): ParsedAd[] {
 function buildSystemPrompt(
   workflowMarkdown: string,
   clientContextMarkdown: string,
-  inputs: Record<string, string>
+  inputs: Record<string, string>,
+  winnerAdsBlock = ''
 ): string {
   const inputLines = Object.entries(inputs)
     .map(([k, v]) => `- ${k}: ${v}`)
     .join('\n')
 
-  return `You are the Agency OS AI — an expert Facebook ad creative strategist for Rework Consulting, a performance marketing agency specializing in local home service businesses (HVAC, roofing, solar, siding, pest control, etc.).
+  const sections = [
+    `You are the Agency OS AI — an expert Facebook ad creative strategist for Rework Consulting, a performance marketing agency specializing in local home service businesses (HVAC, roofing, solar, siding, pest control, etc.).
 
 Your role is to execute the workflow instructions below precisely. Use the client context as your knowledge base. Do not ask for information already present in the context.
 
@@ -84,14 +86,17 @@ ${workflowMarkdown}
 ## CLIENT CONTEXT (loaded from database)
 ${clientContextMarkdown}
 
----
-
-## CAMPAIGN INPUTS FOR THIS RUN
+---`,
+    winnerAdsBlock ? `${winnerAdsBlock}\n---` : '',
+    `## CAMPAIGN INPUTS FOR THIS RUN
 ${inputLines}
 
 ---
 
-Follow the workflow instructions exactly. Produce the structured output with all ${inputs.ad_count} ad variations. Do not truncate.`
+Follow the workflow instructions exactly. Produce the structured output with all ${inputs.ad_count} ad variations. Do not truncate.`,
+  ]
+
+  return sections.filter(Boolean).join('\n\n')
 }
 
 function encodeEvent(event: Record<string, unknown>): string {
@@ -181,6 +186,33 @@ export async function POST(request: NextRequest) {
         const { content: workflowMarkdown, hash: workflowFileHash } =
           await loadWorkflowMarkdown(generateAdsTool.workflow_file)
 
+        // 3b. Load winner/saved ads as references
+        const { data: winnerAds } = await supabase
+          .from('ad_creatives')
+          .select('hook, primary_text, headline, cta, angle, ad_format')
+          .eq('client_id', clientRecord.id)
+          .or('is_winner.eq.true,saved_to_library.eq.true')
+          .order('created_at', { ascending: false })
+          .limit(3)
+
+        let winnerAdsBlock = ''
+        if (winnerAds && winnerAds.length > 0) {
+          const lines = [
+            '## YOUR WINNING ADS (use these as style and tone reference)',
+            'These ads have been marked as winners or saved to library. Mirror their structure, voice, and specificity — not their words.',
+            '',
+          ]
+          for (const ad of winnerAds) {
+            lines.push(`**Angle:** ${ad.angle ?? 'N/A'} | **Format:** ${ad.ad_format ?? 'N/A'}`)
+            if (ad.hook) lines.push(`HOOK: ${ad.hook}`)
+            if (ad.primary_text) lines.push(`PRIMARY TEXT: ${ad.primary_text}`)
+            if (ad.headline) lines.push(`HEADLINE: ${ad.headline}`)
+            if (ad.cta) lines.push(`CTA: ${ad.cta}`)
+            lines.push('---')
+          }
+          winnerAdsBlock = lines.join('\n')
+        }
+
         // 4. Create workflow run record
         const model = generateAdsTool.model ?? 'claude-sonnet-4-6'
         const max_tokens = generateAdsTool.max_tokens ?? 16000
@@ -217,7 +249,8 @@ export async function POST(request: NextRequest) {
         const systemPrompt = buildSystemPrompt(
           workflowMarkdown,
           clientContext.context_markdown,
-          inputs
+          inputs,
+          winnerAdsBlock
         )
 
         // 6. Stream Claude response via shared client
@@ -253,7 +286,14 @@ export async function POST(request: NextRequest) {
 
         // 8. Generate images in parallel via FAL AI
         const imagePrompts = parsedAds.map((ad) => ad.image_prompt)
-        const imageResults = await generateAdImagesBatch(imagePrompts, ad_size as AdSize)
+        const imageResults = await generateAdImagesBatch(imagePrompts, ad_size as AdSize, reference_image_url)
+
+        // Log any FAL errors so we can diagnose silently-failing images
+        const failedImages = imageResults.filter((r) => !r.url)
+        if (failedImages.length > 0) {
+          console.error('[FAL] Image generation failures:', failedImages.map((r) => r.error))
+          enqueue({ type: 'status', stage: 'images', message: `Warning: ${failedImages.length} image(s) failed — ${failedImages[0]?.error ?? 'unknown error'}` })
+        }
 
         // 9. Persist ad_creatives rows
         const insertRows = parsedAds.map((ad, i) => ({

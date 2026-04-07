@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rework Consulting — Ops Manager Onboarding</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --black: #0d0d0d;
+    --dark: #141414;
+    --card: #1a1a1a;
+    --border: #2a2a2a;
+    --orange: #F5A623;
+    --orange-dim: #c47d0e;
+    --white: #f5f5f5;
+    --gray: #888;
+    --light-gray: #bbb;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13pt;
+    line-height: 1.75;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* ─── PRINT SETUP ─────────────────────── */
+  @page {
+    size: letter;
+    margin: 0;
+  }
+
+  @media print {
+    body { font-size: 11pt; }
+    .page { page-break-after: always; box-shadow: none !important; }
+    .page:last-child { page-break-after: avoid; }
+    .no-break { page-break-inside: avoid; }
+    .page-break { page-break-before: always; }
+  }
+
+  /* ─── PAGE WRAPPER ─────────────────────── */
+  .page {
+    width: 8.5in;
+    min-height: 11in;
+    margin: 0 auto 40px;
+    background: var(--black);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 60px rgba(0,0,0,0.8);
+  }
+
+  /* ─── COVER PAGE ─────────────────────── */
+  .cover {
+    background: var(--black);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 0;
+    min-height: 11in;
+  }
+
+  .cover-top-bar {
+    background: var(--orange);
+    height: 8px;
+    width: 100%;
+  }
+
+  .cover-inner {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 1in 1in 0.5in;
+  }
+
+  .cover-logo {
+    margin-bottom: 0.8in;
+  }
+
+  .cover-logo img {
+    height: 70px;
+    width: auto;
+  }
+
+  .cover-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 10pt;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 18px;
+  }
+
+  .cover-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 92pt;
+    line-height: 0.88;
+    color: var(--white);
+    letter-spacing: 0.01em;
+    margin-bottom: 30px;
+  }
+
+  .cover-title span {
+    color: var(--orange);
+  }
+
+  .cover-subtitle {
+    font-size: 15pt;
+    color: var(--light-gray);
+    font-weight: 300;
+    max-width: 5.5in;
+    line-height: 1.6;
+    border-left: 3px solid var(--orange);
+    padding-left: 20px;
+    margin-bottom: 0.6in;
+  }
+
+  .cover-meta {
+    display: flex;
+    gap: 48px;
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+  }
+
+  .cover-meta-item label {
+    font-family: 'DM Mono', monospace;
+    font-size: 8pt;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gray);
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .cover-meta-item span {
+    font-size: 11pt;
+    font-weight: 500;
+    color: var(--white);
+  }
+
+  .cover-decorative {
+    position: absolute;
+    right: -60px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3.5in;
+    height: 3.5in;
+    border: 2px solid rgba(245, 166, 35, 0.08);
+    border-radius: 50%;
+  }
+
+  .cover-decorative::before {
+    content: '';
+    position: absolute;
+    top: 15%;
+    left: 15%;
+    right: 15%;
+    bottom: 15%;
+    border: 1px solid rgba(245, 166, 35, 0.12);
+    border-radius: 50%;
+  }
+
+  .cover-decorative::after {
+    content: '';
+    position: absolute;
+    top: 35%;
+    left: 35%;
+    right: 35%;
+    bottom: 35%;
+    background: rgba(245, 166, 35, 0.06);
+    border-radius: 50%;
+  }
+
+  .cover-bottom {
+    background: var(--dark);
+    padding: 20px 1in;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .cover-bottom p {
+    font-size: 9pt;
+    color: var(--gray);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .cover-bottom .confidential {
+    background: var(--orange);
+    color: var(--black);
+    font-family: 'DM Mono', monospace;
+    font-size: 8pt;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+  }
+
+  /* ─── CONTENT PAGES ─────────────────────── */
+  .content-page {
+    padding: 0.65in 1in 0.65in;
+    min-height: 11in;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+
+  .page-header img {
+    height: 28px;
+    width: auto;
+    opacity: 0.7;
+  }
+
+  .page-header-right {
+    font-family: 'DM Mono', monospace;
+    font-size: 8pt;
+    color: var(--gray);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* ─── SECTION HEADINGS ─────────────────── */
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 8.5pt;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-label::before {
+    content: '';
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: var(--orange);
+    flex-shrink: 0;
+  }
+
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52pt;
+    line-height: 0.9;
+    color: var(--white);
+    letter-spacing: 0.01em;
+    margin-bottom: 28px;
+  }
+
+  h1 span { color: var(--orange); }
+
+  h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28pt;
+    line-height: 1;
+    color: var(--white);
+    letter-spacing: 0.02em;
+    margin-bottom: 14px;
+    margin-top: 32px;
+  }
+
+  h2:first-of-type { margin-top: 0; }
+  h2 span { color: var(--orange); }
+
+  h3 {
+    font-size: 12pt;
+    font-weight: 600;
+    color: var(--white);
+    letter-spacing: 0.02em;
+    margin-bottom: 8px;
+    margin-top: 24px;
+  }
+
+  p {
+    color: var(--light-gray);
+    margin-bottom: 14px;
+    font-weight: 300;
+  }
+
+  p strong {
+    color: var(--white);
+    font-weight: 600;
+  }
+
+  /* ─── INTRO BLOCK ─────────────────────── */
+  .intro-block {
+    background: var(--dark);
+    border-left: 4px solid var(--orange);
+    padding: 24px 28px;
+    margin-bottom: 36px;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .intro-block p {
+    font-size: 13.5pt;
+    line-height: 1.7;
+    color: var(--white);
+    margin: 0;
+    font-weight: 300;
+  }
+
+  /* ─── TWO-COL ─────────────────────────── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+
+  .three-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  /* ─── CARDS ─────────────────────────── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 22px 24px;
+    border-radius: 4px;
+  }
+
+  .card-orange {
+    background: rgba(245, 166, 35, 0.08);
+    border: 1px solid rgba(245, 166, 35, 0.25);
+  }
+
+  .card h3 {
+    margin-top: 0;
+    font-size: 11pt;
+    color: var(--orange);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 10px;
+  }
+
+  .card p {
+    font-size: 11pt;
+    margin: 0;
+    line-height: 1.65;
+  }
+
+  /* ─── NUMBERED LIST ─────────────────── */
+  .step-list {
+    counter-reset: steps;
+    list-style: none;
+    margin-bottom: 24px;
+  }
+
+  .step-list li {
+    counter-increment: steps;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 16px;
+    color: var(--light-gray);
+    font-weight: 300;
+    font-size: 12pt;
+  }
+
+  .step-list li::before {
+    content: counter(steps, decimal-leading-zero);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22pt;
+    color: var(--orange);
+    line-height: 1;
+    flex-shrink: 0;
+    width: 36px;
+  }
+
+  .step-list li strong {
+    color: var(--white);
+    font-weight: 600;
+  }
+
+  /* ─── ROLE TABLE ─────────────────────── */
+  .role-row {
+    display: grid;
+    grid-template-columns: 1.8in auto;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    padding: 14px 0;
+    align-items: start;
+  }
+
+  .role-row:last-child {
+    border-bottom: none;
+  }
+
+  .role-name {
+    font-size: 10.5pt;
+    font-weight: 600;
+    color: var(--white);
+    padding-right: 16px;
+  }
+
+  .role-name span {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 8pt;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--orange);
+    font-weight: 400;
+    margin-bottom: 2px;
+  }
+
+  .role-desc {
+    font-size: 11pt;
+    color: var(--light-gray);
+    font-weight: 300;
+    line-height: 1.6;
+  }
+
+  /* ─── TOOL ROW ─────────────────────── */
+  .tool-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tool-row:last-child { border-bottom: none; }
+
+  .tool-badge {
+    background: var(--dark);
+    border: 1px solid var(--border);
+    color: var(--orange);
+    font-family: 'DM Mono', monospace;
+    font-size: 8.5pt;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    white-space: nowrap;
+    min-width: 1.4in;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .tool-desc {
+    font-size: 11pt;
+    color: var(--light-gray);
+    font-weight: 300;
+    line-height: 1.6;
+  }
+
+  .tool-desc strong {
+    color: var(--white);
+    font-weight: 600;
+  }
+
+  /* ─── HIGHLIGHT BOX ─────────────────── */
+  .highlight-box {
+    background: var(--orange);
+    color: var(--black);
+    padding: 22px 28px;
+    border-radius: 4px;
+    margin: 24px 0;
+  }
+
+  .highlight-box p {
+    color: var(--black);
+    font-size: 12pt;
+    font-weight: 500;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .highlight-box strong {
+    color: var(--black) !important;
+    font-weight: 700;
+  }
+
+  /* ─── VISION SECTION ─────────────────── */
+  .vision-header {
+    background: linear-gradient(135deg, #1a1200, #0d0d0d);
+    border: 1px solid rgba(245, 166, 35, 0.3);
+    padding: 28px 32px;
+    border-radius: 4px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .vision-header::before {
+    content: 'FUTURE';
+    position: absolute;
+    right: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 80pt;
+    color: rgba(245, 166, 35, 0.05);
+    letter-spacing: 0.05em;
+    line-height: 1;
+  }
+
+  .vision-header .section-label {
+    margin-bottom: 8px;
+  }
+
+  .vision-header h2 {
+    margin: 0 0 12px;
+    font-size: 26pt;
+  }
+
+  .vision-header p {
+    margin: 0;
+    font-size: 12pt;
+    max-width: 5in;
+  }
+
+  /* ─── MODULE GRID ─────────────────── */
+  .module-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .module-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 18px 20px;
+    border-radius: 4px;
+    border-top: 3px solid var(--orange);
+  }
+
+  .module-card h3 {
+    font-family: 'DM Mono', monospace;
+    font-size: 9pt;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin: 0 0 8px;
+  }
+
+  .module-card p {
+    font-size: 10pt;
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  /* ─── DIVIDER ─────────────────────── */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 32px 0;
+  }
+
+  /* ─── PAGE FOOTER ─────────────────── */
+  .page-footer {
+    margin-top: auto;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: 'DM Mono', monospace;
+    font-size: 8pt;
+    color: var(--gray);
+    letter-spacing: 0.08em;
+  }
+
+  .page-footer .dot {
+    width: 4px;
+    height: 4px;
+    background: var(--orange);
+    border-radius: 50%;
+    display: inline-block;
+    margin: 0 8px;
+  }
+
+  /* ─── CHECKLIST ─────────────────────── */
+  .checklist {
+    list-style: none;
+    margin-bottom: 20px;
+  }
+
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 8px 0;
+    font-size: 11.5pt;
+    color: var(--light-gray);
+    font-weight: 300;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .checklist li:last-child { border-bottom: none; }
+
+  .checklist li::before {
+    content: '→';
+    color: var(--orange);
+    font-weight: 600;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .checklist li strong {
+    color: var(--white);
+    font-weight: 600;
+  }
+
+  /* ─── TOC ─────────────────────── */
+  .toc-item {
+    display: flex;
+    align-items: baseline;
+    gap: 0;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .toc-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18pt;
+    color: var(--orange);
+    width: 50px;
+    flex-shrink: 0;
+  }
+
+  .toc-title {
+    font-size: 13pt;
+    color: var(--white);
+    font-weight: 500;
+    flex: 1;
+  }
+
+  .toc-dots {
+    flex: 1;
+    border-bottom: 1px dotted var(--border);
+    margin: 0 12px;
+    position: relative;
+    top: -4px;
+  }
+
+  .toc-sub {
+    font-size: 10pt;
+    color: var(--gray);
+    font-weight: 300;
+    margin-top: 2px;
+  }
+
+  /* ─── INLINE STAT ─────────────────── */
+  .stat-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+    margin: 20px 0;
+  }
+
+  .stat-box {
+    background: var(--dark);
+    border: 1px solid var(--border);
+    padding: 16px 18px;
+    text-align: center;
+    border-radius: 4px;
+  }
+
+  .stat-box .num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32pt;
+    color: var(--orange);
+    display: block;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .stat-box .label {
+    font-size: 9pt;
+    color: var(--gray);
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     PAGE 1 — COVER
+════════════════════════════════════════════ -->
+<div class="page">
+  <div class="cover">
+    <div class="cover-top-bar"></div>
+
+    <div class="cover-inner">
+      <div class="cover-logo">
+        <img src="https://reworkconsulting.io/wp-content/uploads/2024/08/WhatsApp_Image_2024-08-29_at_21.15.13_ce8b51d2-removebg-preview.png" alt="Rework Consulting">
+      </div>
+
+      <div class="cover-eyebrow">Ops Manager — Welcome Guide</div>
+
+      <div class="cover-title">
+        Welcome<br>to <span>Rework.</span>
+      </div>
+
+      <div class="cover-subtitle">
+        This is your guide to how we work, what we do, and where we're going. Read it once, keep it close. By the end, you'll know exactly how to show up and do great work here.
+      </div>
+
+      <div class="cover-meta">
+        <div class="cover-meta-item">
+          <label>Company</label>
+          <span>Rework Consulting</span>
+        </div>
+        <div class="cover-meta-item">
+          <label>Document</label>
+          <span>Ops Manager Onboarding</span>
+        </div>
+        <div class="cover-meta-item">
+          <label>Owner</label>
+          <span>Christian James</span>
+        </div>
+        <div class="cover-meta-item">
+          <label>Version</label>
+          <span>1.0 — 2026</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cover-decorative"></div>
+
+    <div class="cover-bottom">
+      <p>reworkconsulting.io &nbsp;·&nbsp; Internal Use Only</p>
+      <div class="confidential">Confidential</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     PAGE 2 — TABLE OF CONTENTS
+════════════════════════════════════════════ -->
+<div class="page">
+  <div class="content-page">
+    <div class="page-header">
+      <img src="https://reworkconsulting.io/wp-content/uploads/2024/08/WhatsApp_Image_2024-08-29_at_21.15.13_ce8b51d2-removebg-preview.png" alt="Rework">
+      <div class="page-header-right">Ops Manager Onboarding</div>
+    </div>
+
+    <div class="section-label">Inside This Guide</div>
+    <h1>What's<br>In <span>Here</span></h1>
+
+    <p style="margin-bottom: 32px; font-size: 13pt;">This guide covers everything you need to get up to speed fast. We've kept it simple and straight to the point — no fluff, no filler.</p>
+
+    <div class="toc-item">
+      <span class="toc-num">01</span>
+      <div style="flex: 1;">
+        <div class="toc-title">Who We Are</div>
+        <div class="toc-sub">Company overview, what makes us different, and how we think</div>
+      </div>
+    </div>
+
+    <div class="toc-item">
+      <span class="toc-num">02</span>
+      <div style="flex: 1;">
+        <div class="toc-title">Who We Work With</div>
+        <div class="toc-sub">The clients we serve, what they look like, and why we cap at 10</div>
+      </div>
+    </div>
+
+    <div class="toc-item">
+      <span class="toc-num">03</span>
+      <div style="flex: 1;">
+        <div class="toc-title">What We Do</div>
+        <div class="toc-sub">Our core services, how they work together, and what winning looks like</div>
+      </div>
+    </div>
+
+    <div class="toc-item">
+      <span class="toc-num">04</span>
+      <div style="flex: 1;">
+        <div class="toc-title">The Team</div>
+        <div class="toc-sub">Roles, responsibilities, and who owns what</div>
+      </div>
+    </div>
+
+    <div class="toc-item">
+      <span class="toc-num">05</span>
+      <div style="flex: 1;">
+        <div class="toc-title">How We Work</div>
+        <div class="toc-sub">Our processes, client onboarding flow, and first 90 days</div>
+      </div>
+    </div>
+
+    <div class="toc-item">
+      <span class="toc-num">06</span>
+      <div style="flex: 1;">
+        <div class="toc-title">Our Tech Stack</div>
+        <div class="toc-sub">Every tool we use, what it does, and when to use it</div>
+      </div>
+    </div>
+
+    <div class="toc-item">
+      <span class="toc-num">07</span>
+      <div style="flex: 1;">
+        <div class="toc-title">Client Management</div>
+        <div class="toc-sub">How we organize client info, intake process, and data structure</div>
+      </div>
+    </div>
+
+    <div class="toc-item">
+      <span class="toc-num">08</span>
+      <div style="flex: 1;">
+        <div class="toc-title">The Agency OS</div>
+        <div class="toc-sub">Our AI system — what it is, how it works, and your role in it</div>
+      </div>
+    </div>
+
+    <div class="toc-item">
+      <span class="toc-num">09</span>
+      <div style="flex: 1;">
+        <div class="toc-title">Where We're Going</div>
+        <div class="toc-sub">The long-term vision for Rework's platform and what we're building</div>
+      </div>
+    </div>
+
+    <div style="margin-top: auto;">
+      <div class="highlight-box">
+        <p><strong>A note from Christian:</strong> This isn't just a document to check a box. Read it carefully. The clearer you are on how we operate, the faster you'll make an impact. Ask questions early — don't wait until something breaks.</p>
+      </div>
+    </div>
+
+    <div class="page-footer">
+      <span>Rework Consulting</span>
+      <span><span class="dot"></span></span>
+      <span>Ops Manager Onboarding — Confidential</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     PAGE 3 — WHO WE ARE
+════════════════════════════════════════════ -->
+<div class="page">
+  <div class="content-page">
+    <div class="page-header">
+      <img src="https://reworkconsulting.io/wp-content/uploads/2024/08/WhatsApp_Image_2024-08-29_at_21.15.13_ce8b51d2-removebg-preview.png" alt="Rework">
+      <div class="page-header-right">01 — Who We Are</div>
+    </div>
+
+    <div class="section-label">01 — Company Overview</div>
+    <h1>Who <span>We</span><br>Are</h1>
+
+    <div class="intro-block">
+      <p>Rework Consulting is a full-service marketing firm for home service businesses. We don't just run ads and send a report. We get inside our clients' businesses and help them grow — however that needs to happen.</p>
+    </div>
+
+    <p>We work with contractors, HVAC companies, roofers, solar businesses, and other home service companies. Most of them are already making money. They're not startups. They're real businesses that want to scale — and they need a team they can trust to make it happen.</p>
+
+    <p>We keep our client count at <strong>10 active clients max</strong>. That's on purpose. When you try to serve 50 clients, you spread thin and no one gets your best work. At 10, we can go deep. We can actually solve problems, not just manage campaigns.</p>
+
+    <div class="stat-row">
+      <div class="stat-box">
+        <span class="num">10</span>
+        <span class="label">Max Active Clients</span>
+      </div>
+      <div class="stat-box">
+        <span class="num">7→8</span>
+        <span class="label">Figure Growth Target</span>
+      </div>
+      <div class="stat-box">
+        <span class="num">90%</span>
+        <span class="label">Home Service Focus</span>
+      </div>
+    </div>
+
+    <h2>What Makes <span>Us Different</span></h2>
+
+    <p>Most marketing agencies are vendors. They set up ads, put them on autopilot, and send a report at the end of the month. That's not us.</p>
+
+    <p>We call ourselves <strong>growth partners</strong> — not vendors. Here's what that means in practice:</p>
+
+    <div class="two-col no-break">
+      <div class="card card-orange">
+        <h3>What Vendors Do</h3>
+        <p>Run the ads. Send a report. Move on. They stay in their lane and never ask what else is broken.</p>
+      </div>
+      <div class="card card-orange">
+        <h3>What We Do</h3>
+        <p>We find the real problem. We fix it. Then we ask what's next. Sales process broke? We help fix that too.</p>
+      </div>
+    </div>
+
+    <p>The path we take most clients on looks like this:</p>
+
+    <ol class="step-list">
+      <li><div><strong>Build the acquisition system</strong> — ads, automations, creative, landing pages</div></li>
+      <li><div><strong>Solve the next bottleneck</strong> — could be sales, hiring, operations, anything</div></li>
+      <li><div><strong>Go deeper</strong> — expand scope, upsell the right solution, stay embedded</div></li>
+      <li><div><strong>Build toward a household name</strong> — they dominate their local market</div></li>
+    </ol>
+
+    <hr class="divider">
+
+    <h2>Our <span>Business Model</span></h2>
+
+    <div class="two-col">
+      <div class="card">
+        <h3>Monthly Retainer</h3>
+        <p>Clients pay a base monthly fee to work with us. This covers the team's time and management.</p>
+      </div>
+      <div class="card">
+        <h3>Revenue Share</h3>
+        <p>We also take a percentage of the revenue we directly generate. This keeps us fully aligned — we only win when they win.</p>
+      </div>
+    </div>
+
+    <p style="font-size: 11pt; color: var(--gray);">Note: Exact pricing is subject to change. Always use current figures at time of engagement.</p>
+
+    <div class="page-footer">
+      <span>Rework Consulting</span>
+      <span><span class="dot"></span></span>
+      <span>01 — Who We Are</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     PAGE 4 — WHO WE WORK WITH + TEAM
+════════════════════════════════════════════ -->
+<div class="page">
+  <div class="content-page">
+    <div class="page-header">
+      <img src="https://reworkconsulting.io/wp-content/uploads/2024/08/WhatsApp_Image_2024-08-29_at_21.15.13_ce8b51d2-removebg-preview.png" alt="Rework">
+      <div class="page-header-right">02 / 04 — Clients & Team</div>
+    </div>
+
+    <div class="section-label">02 — Our Clients</div>
+    <h1>Who We<br><span>Serve</span></h1>
+
+    <p>Our sweet spot is home service businesses that are already generating revenue and want to scale. We specialize in taking companies from 7 figures to 8 figures. We don't work with startups.</p>
+
+    <div class="three-col no-break">
+      <div class="card">
+        <h3>Industries</h3>
+        <p>HVAC · Solar · Roofing · Siding · Decking · Windows &amp; Doors · Gutters · Pest Control · Landscaping</p>
+      </div>
+      <div class="card card-orange">
+        <h3>We Work With</h3>
+        <p>Established businesses. Already making money. Ready to invest in growth. Have a team in place.</p>
+      </div>
+      <div class="card">
+        <h3>We Don't Work With</h3>
+        <p>New startups. Failing businesses. Anyone who hasn't proven they can get customers yet.</p>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="section-label">04 — The Team</div>
+    <h2>Our <span>Team</span></h2>
+
+    <p>Here's everyone on the team, what they own, and who to go to for what.</p>
+
+    <div class="no-break">
+      <div class="role-row">
+        <div class="role-name"><span>Owner / Founder</span>Christian James</div>
+        <div class="role-desc">Big picture strategy, client relationships, and final approval on all major deliverables. When in doubt, Christian has the final say.</div>
+      </div>
+      <div class="role-row">
+        <div class="role-name"><span>Senior Marketer</span>Head of Client Marketing</div>
+        <div class="role-desc">Runs the marketing side — media buying, copywriting, ad strategy, and creative direction. Approves all creative output.</div>
+      </div>
+      <div class="role-row">
+        <div class="role-name"><span>Assistant Media Buyer</span>Campaign Support</div>
+        <div class="role-desc">Supports the Senior Marketer with campaign management, ad optimization, and daily monitoring.</div>
+      </div>
+      <div class="role-row">
+        <div class="role-name"><span>Copywriter</span>Ad Copy & Scripts</div>
+        <div class="role-desc">Writes ad copy, video scripts, email sequences, and SMS campaigns. Works from the ICP research documents.</div>
+      </div>
+      <div class="role-row">
+        <div class="role-name"><span>Virtual Assistant</span>Admin &amp; Execution</div>
+        <div class="role-desc">Handles administrative tasks, data entry, and task execution to keep operations moving.</div>
+      </div>
+      <div class="role-row">
+        <div class="role-name"><span>Appointment Setters</span>Client-Deployed</div>
+        <div class="role-desc">Work inside GoHighLevel to call, manage, and book leads for clients. Some are Rework-hired; others are client-hired and Rework-trained.</div>
+      </div>
+    </div>
+
+    <div class="page-footer">
+      <span>Rework Consulting</span>
+      <span><span class="dot"></span></span>
+      <span>02 / 04 — Clients &amp; Team</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     PAGE 5 — WHAT WE DO
+════════════════════════════════════════════ -->
+<div class="page">
+  <div class="content-page">
+    <div class="page-header">
+      <img src="https://reworkconsulting.io/wp-content/uploads/2024/08/WhatsApp_Image_2024-08-29_at_21.15.13_ce8b51d2-removebg-preview.png" alt="Rework">
+      <div class="page-header-right">03 — What We Do</div>
+    </div>
+
+    <div class="section-label">03 — Services</div>
+    <h1>What<br><span>We Do</span></h1>
+
+    <div class="intro-block">
+      <p>Everything we build for a client is connected. Ads drive leads. Automations catch and follow up on those leads. Creative makes the ads work. You can't have one without the others — it's one system.</p>
+    </div>
+
+    <div class="three-col no-break">
+      <div class="card card-orange">
+        <h3>Facebook Ads</h3>
+        <p>Primary lead acquisition channel. We run paid ads on Facebook and Instagram to generate qualified leads for each client.</p>
+      </div>
+      <div class="card card-orange">
+        <h3>Sales Automations</h3>
+        <p>GHL-powered sequences that follow up with every lead automatically — so no lead goes cold without a touchpoint.</p>
+      </div>
+      <div class="card card-orange">
+        <h3>Creative Production</h3>
+        <p>All ad copy, graphics, and video scripts. Creative is what makes ads actually work — it's not an afterthought here.</p>
+      </div>
+    </div>
+
+    <h2>The <span>First 90 Days</span></h2>
+
+    <p>Every new client goes through the same onboarding order. This is not optional — these steps are in this sequence for a reason.</p>
+
+    <ol class="step-list no-break">
+      <li><div><strong>GHL Onboarding &amp; A2P Verification</strong> — Client is set up in our GoHighLevel environment and their phone number is verified for SMS.</div></li>
+      <li><div><strong>Rework Snapshot Deployed</strong> — Our pre-built lead nurture system goes into their account and gets customized for them.</div></li>
+      <li><div><strong>Facebook Ad Account Access</strong> — We get access to the client's ad account, set up tracking, pixel, and attribution.</div></li>
+      <li><div><strong>ICP Research</strong> — We research who their ideal customer is before a single ad is written. This drives everything.</div></li>
+      <li><div><strong>Landing Pages &amp; Lead Forms Built</strong> — All traffic gets a destination. No landing page = no leads.</div></li>
+      <li><div><strong>Ad Copy &amp; Creatives Developed</strong> — Written using the ICP research. Not generic. Not guesswork.</div></li>
+      <li><div><strong>Campaigns Launched &amp; Tested</strong> — We test the full flow (ad → form → GHL → follow-up → booking) before calling it live.</div></li>
+      <li><div><strong>Optimization Begins</strong> — We manage based on data, not schedule. Winning ads run longer; losing ads get cut fast.</div></li>
+    </ol>
+
+    <h2>What <span>"Winning"</span> Looks Like</h2>
+
+    <ul class="checklist no-break">
+      <li>Consistent leads coming in at a predictable cost per lead</li>
+      <li>Leads being nurtured automatically — no manual follow-up needed</li>
+      <li><strong>Appointments booked and showing up</strong></li>
+      <li>The sales team has a full pipeline to work</li>
+      <li>The client has less chaos and more visibility</li>
+      <li><strong>Revenue growing month over month</strong></li>
+    </ul>
+
+    <div class="page-footer">
+      <span>Rework Consulting</span>
+      <span><span class="dot"></span></span>
+      <span>03 — What We Do</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     PAGE 6 — TECH STACK
+════════════════════════════════════════════ -->
+<div class="page">
+  <div class="content-page">
+    <div class="page-header">
+      <img src="https://reworkconsulting.io/wp-content/uploads/2024/08/WhatsApp_Image_2024-08-29_at_21.15.13_ce8b51d2-removebg-preview.png" alt="Rework">
+      <div class="page-header-right">06 — Tech Stack</div>
+    </div>
+
+    <div class="section-label">06 — Tools & Technology</div>
+    <h1>Our <span>Tech</span><br>Stack</h1>
+
+    <p>Every tool in our stack has a specific job. There's no overlap. Don't add new tools unless something genuinely can't be handled by what's already here.</p>
+
+    <div class="tool-row no-break">
+      <div class="tool-badge">GoHighLevel</div>
+      <div class="tool-desc"><strong>The client execution platform.</strong> Every client gets their own GHL sub-account. This is where all leads live, all automations run, all calls happen, and all appointments get booked. Appointment setters work out of GHL daily.</div>
+    </div>
+
+    <div class="tool-row no-break">
+      <div class="tool-badge">Airtable</div>
+      <div class="tool-desc"><strong>Our internal operating system.</strong> This is where we track everything internally — tasks, lead logs, client data, performance metrics, SOPs. GHL handles the client-facing side; Airtable handles our internal visibility.</div>
+    </div>
+
+    <div class="tool-row no-break">
+      <div class="tool-badge">Facebook Ads Mgr</div>
+      <div class="tool-desc"><strong>The ad platform.</strong> Where we build, launch, and manage all Facebook and Instagram campaigns for every client. We access this on behalf of clients and monitor it daily.</div>
+    </div>
+
+    <div class="tool-row no-break">
+      <div class="tool-badge">Make</div>
+      <div class="tool-desc"><strong>Complex automations between tools.</strong> When GHL does something and we need Airtable to know about it — or when data needs to move between systems automatically — Make handles it. Use this for anything multi-step.</div>
+    </div>
+
+    <div class="tool-row no-break">
+      <div class="tool-badge">Zapier</div>
+      <div class="tool-desc"><strong>Simple one-step automations.</strong> If an integration is quick and doesn't need multiple steps, Zapier handles it. Rule of thumb: simple = Zapier, complex = Make.</div>
+    </div>
+
+    <div class="tool-row no-break">
+      <div class="tool-badge">Slack</div>
+      <div class="tool-desc"><strong>Internal communication.</strong> All team communication runs through Slack. Alerts, client updates, and quick approvals all come through here too.</div>
+    </div>
+
+    <div class="tool-row no-break">
+      <div class="tool-badge">Google Docs</div>
+      <div class="tool-desc"><strong>Documents and shared files.</strong> Finished deliverables (ICP docs, reports, strategy docs) live here so the whole team can access them. Also where client assets like logos and brand files are stored.</div>
+    </div>
+
+    <div class="tool-row no-break">
+      <div class="tool-badge">Frame.io</div>
+      <div class="tool-desc"><strong>Video review and approval.</strong> Video editors upload cuts here. The team reviews and leaves timestamped notes. This is the handoff point between video production and approval.</div>
+    </div>
+
+    <div class="highlight-box" style="margin-top: 24px;">
+      <p><strong>Quick rule:</strong> Lead comes in → GHL. Track what happened → Airtable. Move data between tools → Make or Zapier. Create a document → Google Docs. Review a video → Frame.io. Talk to the team → Slack.</p>
+    </div>
+
+    <div class="page-footer">
+      <span>Rework Consulting</span>
+      <span><span class="dot"></span></span>
+      <span>06 — Tech Stack</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     PAGE 7 — CLIENT MANAGEMENT
+════════════════════════════════════════════ -->
+<div class="page">
+  <div class="content-page">
+    <div class="page-header">
+      <img src="https://reworkconsulting.io/wp-content/uploads/2024/08/WhatsApp_Image_2024-08-29_at_21.15.13_ce8b51d2-removebg-preview.png" alt="Rework">
+      <div class="page-header-right">07 — Client Management</div>
+    </div>
+
+    <div class="section-label">07 — Client Data & Organization</div>
+    <h1>Client<br><span>Management</span></h1>
+
+    <p>Every client has a folder. Every folder has the same structure. This isn't just organization — it's how our AI system knows what to do for each client.</p>
+
+    <div class="two-col no-break">
+      <div>
+        <h2>The <span>Client Folder</span></h2>
+        <p>When a new client comes on board, we build their folder right away. Here's what goes in it:</p>
+        <ul class="checklist">
+          <li><strong>overview.md</strong> — Business info, contact details, services, ad spend, goals</li>
+          <li><strong>services.md</strong> — What they offer, pricing, service area</li>
+          <li><strong>competitors.md</strong> — Known and researched competitors</li>
+          <li><strong>reviews_raw.md</strong> — Raw scraped reviews from Google</li>
+          <li><strong>reviews.md</strong> — Curated quotes that shape the ICP</li>
+          <li><strong>icp.md</strong> — The full Ideal Customer Profile document</li>
+        </ul>
+      </div>
+      <div>
+        <h2>The <span>ICP Document</span></h2>
+        <p>The ICP is the most important file we make for any client. It's a deep research document that covers:</p>
+        <ul class="checklist">
+          <li>Who the client is and how they talk</li>
+          <li>Who their ideal customer is and what they think</li>
+          <li>What the client sells and why it works</li>
+          <li>How to message and position the offer</li>
+          <li>Where and how to reach the right customers</li>
+          <li>How the client's sales process works</li>
+        </ul>
+        <p style="margin-top: 12px; font-size: 10.5pt;"><strong>Everything else we produce — ads, scripts, emails — is built from the ICP.</strong> If the ICP is wrong, everything downstream is wrong.</p>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <h2>Onboarding a <span>New Client</span></h2>
+
+    <ol class="step-list no-break">
+      <li><div><strong>Create their folder</strong> — Named in lowercase with hyphens. Example: <code style="font-family: 'DM Mono'; font-size: 10pt; background: #1a1a1a; padding: 2px 6px; color: var(--orange);">clients/abc-hvac/</code></div></li>
+      <li><div><strong>Fill out overview.md</strong> — Every field, right from the onboarding call. Blank fields get marked TBD — never skipped.</div></li>
+      <li><div><strong>Run the ICP research workflow</strong> — This populates reviews.md and icp.md from real research data.</div></li>
+      <li><div><strong>Sync to Supabase</strong> — The platform reads from Supabase, not the files directly. After any update, run the sync script so the platform stays current.</div></li>
+    </ol>
+
+    <div class="card card-orange no-break">
+      <h3>Critical Rule</h3>
+      <p>Never skip the ICP research before running ads. Never start ad copy without an ICP. The ICP research workflow must complete before any downstream work happens. This order is non-negotiable.</p>
+    </div>
+
+    <hr class="divider">
+
+    <h2>Key <span>Intake Fields</span></h2>
+
+    <div class="two-col no-break">
+      <div>
+        <h3>Business Info We Need</h3>
+        <ul class="checklist" style="font-size: 10.5pt;">
+          <li>Business name, owner name, email, phone</li>
+          <li>Website and Google Business Profile</li>
+          <li>Service area and list of services</li>
+          <li>Average job value and starting ad spend</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Marketing Context</h3>
+        <ul class="checklist" style="font-size: 10.5pt;">
+          <li>Biggest marketing challenge</li>
+          <li>List of competitors</li>
+          <li>Their description of ideal client</li>
+          <li>Main goal for the next 6–12 months</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="page-footer">
+      <span>Rework Consulting</span>
+      <span><span class="dot"></span></span>
+      <span>07 — Client Management</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     PAGE 8 — THE AGENCY OS
+════════════════════════════════════════════ -->
+<div class="page">
+  <div class="content-page">
+    <div class="page-header">
+      <img src="https://reworkconsulting.io/wp-content/uploads/2024/08/WhatsApp_Image_2024-08-29_at_21.15.13_ce8b51d2-removebg-preview.png" alt="Rework">
+      <div class="page-header-right">08 — The Agency OS</div>
+    </div>
+
+    <div class="section-label">08 — AI Operating System</div>
+    <h1>The Agency<br><span>OS</span></h1>
+
+    <div class="intro-block">
+      <p>We've built an AI-powered system that handles the research, writing, and analysis work that used to eat up hours of the team's time. This isn't a chatbot. It's a structured operating system that knows how to do our job.</p>
+    </div>
+
+    <h2>How It <span>Works</span></h2>
+
+    <p>The system is organized into three layers. Each layer has a specific job:</p>
+
+    <div class="three-col no-break">
+      <div class="card">
+        <h3>Layer 1: Workflows</h3>
+        <p>Step-by-step instructions for each task. These are like recipes — they tell the system exactly what to do and in what order. Stored as documents the AI reads before acting.</p>
+      </div>
+      <div class="card card-orange">
+        <h3>Layer 2: The AI Agent</h3>
+        <p>This is the brain. It reads the workflow, makes smart decisions, runs the right tools, and handles problems when they come up. It connects the intent to the action.</p>
+      </div>
+      <div class="card">
+        <h3>Layer 3: Tools</h3>
+        <p>The actual execution — web scrapers, scripts, AI image generators. These do the work. The AI tells them what to do; they do it exactly.</p>
+      </div>
+    </div>
+
+    <h2>The <span>Workflows</span> We Run</h2>
+
+    <p>Each workflow has a specific job. They must run in the right order — you can't skip ahead:</p>
+
+    <ul class="checklist no-break">
+      <li><strong>Onboard Client</strong> — Parse intake info, check for gaps, build the client folder</li>
+      <li><strong>Build ICP</strong> — Scrape reviews, research competitors, synthesize the ICP document</li>
+      <li><strong>Generate Ads</strong> — Write Facebook ad copy using the ICP (requires ICP to exist first)</li>
+      <li><strong>SEO Audit</strong> — Keyword research and site audit (requires ICP to exist first)</li>
+      <li><strong>Generate Report</strong> — Monthly performance summary (requires ICP to exist first)</li>
+    </ul>
+
+    <div class="highlight-box no-break">
+      <p><strong>The dependency order is strict:</strong> Onboard Client → Build ICP → then everything else. If you skip the ICP, the downstream tools have no research to work from and the outputs are garbage. Don't skip it.</p>
+    </div>
+
+    <h2>Your Role in <span>The OS</span></h2>
+
+    <p>As Ops Manager, you don't need to know how to run code. But you do need to understand what the system does so you can make sure it's being used correctly.</p>
+
+    <div class="two-col no-break">
+      <div class="card">
+        <h3>What to Know</h3>
+        <p>What each workflow does. What order they run in. What outputs they create. When the system is working correctly vs. when something's broken.</p>
+      </div>
+      <div class="card">
+        <h3>What to Watch</h3>
+        <p>Is every client synced to the platform after updates? Are workflows being followed in order? Are client folders complete and up to date?</p>
+      </div>
+    </div>
+
+    <div class="page-footer">
+      <span>Rework Consulting</span>
+      <span><span class="dot"></span></span>
+      <span>08 — The Agency OS</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     PAGE 9 — WHERE WE'RE GOING (OS VISION)
+════════════════════════════════════════════ -->
+<div class="page">
+  <div class="content-page">
+    <div class="page-header">
+      <img src="https://reworkconsulting.io/wp-content/uploads/2024/08/WhatsApp_Image_2024-08-29_at_21.15.13_ce8b51d2-removebg-preview.png" alt="Rework">
+      <div class="page-header-right">09 — Where We're Going</div>
+    </div>
+
+    <div class="vision-header no-break">
+      <div class="section-label">09 — Long-Term Vision</div>
+      <h2>Where We're <span>Going</span></h2>
+      <p>This section is about the future. What you're reading right now is the current state. This is where we're heading — and why the work we do today matters so much.</p>
+    </div>
+
+    <h2>The Big <span>Goal</span></h2>
+
+    <p>Right now, the Agency OS lives in Claude Code — an AI terminal on a computer. The team interacts with it directly. That works, but it's not where we want to stay long-term.</p>
+
+    <p>The plan is to turn this entire system into a <strong>custom software platform</strong> — a web app that the whole team can use without needing to know how the AI works underneath.</p>
+
+    <div class="two-col no-break">
+      <div class="card">
+        <h3>How It Works Today</h3>
+        <p>The AI is run manually through a terminal. The team needs to know the commands and workflows to use it. It works, but it requires some technical knowledge.</p>
+      </div>
+      <div class="card card-orange">
+        <h3>How It Will Work</h3>
+        <p>Anyone on the team clicks a button — "Generate ICP," "Write Ads," "Run SEO Audit" — and the system does the work. No technical knowledge required.</p>
+      </div>
+    </div>
+
+    <h2>The <span>Modules</span> Being Built</h2>
+
+    <p>The platform will have separate modules, each powering a different part of the agency. Here's what's planned:</p>
+
+    <div class="module-grid no-break">
+      <div class="module-card">
+        <h3>Research</h3>
+        <p>Builds a full picture of the client, their market, their customers, and their competitors from raw data.</p>
+      </div>
+      <div class="module-card">
+        <h3>ICP</h3>
+        <p>Generates detailed customer profiles and messaging insights. The engine behind everything we write.</p>
+      </div>
+      <div class="module-card">
+        <h3>Copywriting</h3>
+        <p>Writes Facebook ads, video scripts, emails, landing pages — all from the ICP research.</p>
+      </div>
+      <div class="module-card">
+        <h3>SEO</h3>
+        <p>Audits websites, analyzes competitor SEO, finds keyword gaps, proposes content strategies.</p>
+      </div>
+      <div class="module-card">
+        <h3>Creative</h3>
+        <p>Generates ad concepts, creative briefs, and image prompts for all visual ad assets.</p>
+      </div>
+      <div class="module-card">
+        <h3>Reporting</h3>
+        <p>Pulls performance data and produces clean, client-specific reports automatically.</p>
+      </div>
+      <div class="module-card">
+        <h3>Brand</h3>
+        <p>Generates brand packs — color systems, typography, visual direction — for clients who need it.</p>
+      </div>
+      <div class="module-card">
+        <h3>Operations</h3>
+        <p>Manages tasks, tracks accountability, sends renewal alerts, and flags anything overdue.</p>
+      </div>
+      <div class="module-card">
+        <h3>Client Portal</h3>
+        <p>A clean dashboard where clients can see their own data, reports, and campaign status.</p>
+      </div>
+    </div>
+
+    <div class="highlight-box no-break">
+      <p><strong>Why this matters for your role:</strong> The system you're operating today is the foundation for the platform we're building tomorrow. Every process you follow, every workflow you enforce — it all feeds into this. The cleaner we run it now, the smoother the platform will be when it launches.</p>
+    </div>
+
+    <div class="page-footer">
+      <span>Rework Consulting</span>
+      <span><span class="dot"></span></span>
+      <span>09 — Where We're Going</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     PAGE 10 — CLOSING / QUICK REFERENCE
+════════════════════════════════════════════ -->
+<div class="page">
+  <div class="content-page">
+    <div class="page-header">
+      <img src="https://reworkconsulting.io/wp-content/uploads/2024/08/WhatsApp_Image_2024-08-29_at_21.15.13_ce8b51d2-removebg-preview.png" alt="Rework">
+      <div class="page-header-right">Quick Reference</div>
+    </div>
+
+    <div class="section-label">Quick Reference</div>
+    <h1>Your Daily<br><span>Cheat Sheet</span></h1>
+
+    <p>Bookmark this page. These are the things you'll need to remember every day on the job.</p>
+
+    <div class="two-col no-break" style="margin-bottom: 28px;">
+      <div>
+        <h2>Non-Negotiable <span>Rules</span></h2>
+        <ul class="checklist">
+          <li>ICP must be complete before any ads are written</li>
+          <li>Client folders must be synced to Supabase after every update</li>
+          <li>Workflows run in order — never skip steps</li>
+          <li>Christian approves all major deliverables and strategy changes</li>
+          <li>Client count stays at 10 max — always</li>
+          <li>Every client folder must have all fields — blank = TBD, never skip</li>
+        </ul>
+      </div>
+      <div>
+        <h2>When Things <span>Break</span></h2>
+        <ul class="checklist">
+          <li>Read the full error first — don't just retry</li>
+          <li>Fix the root cause, not just the symptom</li>
+          <li>Update the workflow so it doesn't break again</li>
+          <li>If a client isn't showing in the platform, they need to be synced to Supabase</li>
+          <li>If a tool fails, check if the workflow file exists for it</li>
+          <li>Ask Christian before making structural changes</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2>The <span>Sync Checklist</span> — Before You End Any Session</h2>
+
+    <div class="card card-orange no-break" style="margin-bottom: 24px;">
+      <ul class="checklist" style="font-size: 11.5pt;">
+        <li>Are all client folders complete and up to date?</li>
+        <li>Are all client updates synced to Supabase?</li>
+        <li>Are all changes pushed to GitHub?</li>
+        <li>Does every platform tool have a matching workflow file?</li>
+        <li>Are there any open tasks that need to be escalated?</li>
+      </ul>
+    </div>
+
+    <h2>Who to <span>Go To</span></h2>
+
+    <div class="three-col no-break">
+      <div class="card">
+        <h3>Strategy Questions</h3>
+        <p>Always goes to Christian. He has final say on all strategic decisions and major client changes.</p>
+      </div>
+      <div class="card">
+        <h3>Creative Questions</h3>
+        <p>Goes to the Senior Marketer. They approve all creative output before it goes live.</p>
+      </div>
+      <div class="card">
+        <h3>Tech Questions</h3>
+        <p>Start with the workflow docs. If it's not documented, bring it to Christian to decide how to handle it.</p>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div style="background: var(--dark); border: 1px solid var(--border); padding: 28px 32px; border-radius: 4px; margin-top: 8px;">
+      <div class="section-label" style="margin-bottom: 12px;">A Final Word</div>
+      <p style="font-size: 13pt; color: var(--white); font-weight: 300; line-height: 1.7; margin: 0;">We built Rework to be something different. Not another agency that runs the same playbook for everyone. We go deep. We stay honest. We fix what's actually broken. That's the standard — and it starts with every person on this team holding it. Welcome aboard.</p>
+      <p style="font-size: 12pt; color: var(--orange); font-weight: 600; margin: 16px 0 0; font-style: italic;">— Christian James, Founder</p>
+    </div>
+
+    <div class="page-footer">
+      <span>Rework Consulting</span>
+      <span><span class="dot"></span></span>
+      <span>reworkconsulting.io &nbsp;·&nbsp; Confidential — Internal Use Only</span>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

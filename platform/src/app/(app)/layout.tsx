@@ -2,6 +2,7 @@ import { headers } from 'next/headers'
 import { cookies } from 'next/headers'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { PreviewBanner } from '@/components/layout/PreviewBanner'
+import { TopBar } from '@/components/layout/TopBar'
 import { createServerClient } from '@/lib/supabase/server'
 
 const PREVIEW_COOKIE = 'agency_os_preview_user'
@@ -91,7 +92,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           allowedMenus={allowedMenus}
           allowedTools={allowedTools}
         />
-        <main className="flex-1 min-w-0 overflow-auto" style={{ background: 'var(--bg)' }}>
+        <main className="flex-1 min-w-0 overflow-auto flex flex-col" style={{ background: 'var(--bg)' }}>
+          <TopBar />
           {children}
         </main>
       </div>
