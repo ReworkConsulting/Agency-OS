@@ -95,7 +95,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           allowedTools={allowedTools}
         />
         <main className="flex-1 min-w-0 overflow-auto flex flex-col" style={{ background: 'var(--bg)' }}>
-          <TopBar />
+          <TopBar user={sidebarUser} isAdmin={userRole === 'admin'} />
           <TooltipProvider>
             <PageTransitionWrapper>{children}</PageTransitionWrapper>
           </TooltipProvider>

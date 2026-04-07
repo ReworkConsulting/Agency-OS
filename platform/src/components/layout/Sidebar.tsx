@@ -3,8 +3,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { useTheme } from 'next-themes'
-import { useEffect, useState } from 'react'
 
 interface UserInfo {
   id: string
@@ -32,20 +30,14 @@ const ALL_CLIENT_TOOLS = [
 ]
 
 const TOP_NAV = [
-  { label: 'Mission Control', href: '/',            icon: <GridIcon /> },
-  { label: 'Clients',         href: '/clients',     icon: <UsersIcon /> },
-  { label: 'Tasks',           href: '/tasks',       icon: <CheckIcon /> },
-  { label: 'Alerts',          href: '/alerts',      icon: <AlertIcon /> },
-  { label: 'Ad Library',      href: '/ads/library',      icon: <BookmarkIcon /> },
-  { label: 'Script Library',  href: '/scripts/library',  icon: <ScriptLibIcon /> },
+  { label: 'Dashboard',      href: '/',                 icon: <GridIcon /> },
+  { label: 'Clients',        href: '/clients',          icon: <UsersIcon /> },
+  { label: 'Ad Library',     href: '/ads/library',      icon: <BookmarkIcon /> },
+  { label: 'Script Library', href: '/scripts/library',  icon: <ScriptLibIcon /> },
 ]
 
 export function Sidebar({ clients = [], user, allowedMenus = [] }: SidebarProps) {
   const pathname = usePathname()
-  const { resolvedTheme, setTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => setMounted(true), [])
 
   const clientSlugMatch = pathname.match(/^\/clients\/([^/]+)/)
   const activeSlug = clientSlugMatch?.[1]
@@ -56,9 +48,6 @@ export function Sidebar({ clients = [], user, allowedMenus = [] }: SidebarProps)
   const clientTools = isAdmin || allowedMenus.length === 0
     ? ALL_CLIENT_TOOLS
     : ALL_CLIENT_TOOLS.filter(t => t.menu === 'overview' || allowedMenus.includes(t.menu))
-
-  // Safe: only use resolvedTheme after mount to avoid hydration mismatch
-  const isDark = mounted ? resolvedTheme === 'dark' : true
 
   return (
     <aside
@@ -147,14 +136,24 @@ export function Sidebar({ clients = [], user, allowedMenus = [] }: SidebarProps)
       {/* ── Footer ────────────────────────────────────────────── */}
       <div className="mt-auto" style={{ borderTop: '1px solid var(--sidebar-border)' }}>
 
-        {/* Settings — only show for admins */}
+        {/* Profile — visible to all users */}
+        <div className="px-3 pt-3">
+          <NavItem
+            href="/settings/account"
+            icon={<PersonIcon />}
+            label="Profile"
+            active={pathname === '/settings/account'}
+          />
+        </div>
+
+        {/* Settings — admins only */}
         {isAdmin && (
-          <div className="px-3 pt-3">
+          <div className="px-3 pt-1">
             <NavItem
               href="/settings"
               icon={<GearIcon />}
               label="Settings"
-              active={pathname.startsWith('/settings')}
+              active={pathname.startsWith('/settings') && pathname !== '/settings/account'}
             />
           </div>
         )}
@@ -163,7 +162,7 @@ export function Sidebar({ clients = [], user, allowedMenus = [] }: SidebarProps)
         {user && (
           <div
             className="px-4 py-3 flex items-center gap-2.5"
-            style={{ borderTop: isAdmin ? '1px solid var(--sidebar-border)' : undefined, marginTop: isAdmin ? '8px' : undefined }}
+            style={{ borderTop: '1px solid var(--sidebar-border)', marginTop: '8px' }}
           >
             <div
               className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-[11px] font-semibold"
@@ -179,17 +178,6 @@ export function Sidebar({ clients = [], user, allowedMenus = [] }: SidebarProps)
             </div>
           </div>
         )}
-
-        {/* Version + theme toggle */}
-        <div
-          className="px-4 py-3 flex items-center justify-between"
-          style={{ borderTop: '1px solid var(--sidebar-border)' }}
-        >
-          <span className="text-[11px]" style={{ color: 'var(--text-3)' }}>v0.1.0</span>
-          {mounted && (
-            <ThemeToggleButton isDark={isDark} setTheme={setTheme} />
-          )}
-        </div>
       </div>
     </aside>
   )
@@ -199,28 +187,6 @@ export function Sidebar({ clients = [], user, allowedMenus = [] }: SidebarProps)
 
 function Divider() {
   return <div className="mx-4 my-3 h-px" style={{ background: 'var(--sidebar-border)' }} />
-}
-
-function ThemeToggleButton({ isDark, setTheme }: { isDark: boolean; setTheme: (t: string) => void }) {
-  const [hovered, setHovered] = useState(false)
-  return (
-    <button
-      onClick={() => setTheme(isDark ? 'light' : 'dark')}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md"
-      style={{
-        background: hovered ? 'var(--bg-subtle)' : 'var(--bg-hover)',
-        color: hovered ? 'var(--text-1)' : 'var(--text-2)',
-        border: '1px solid var(--border)',
-        transition: 'background-color 0.15s ease, color 0.15s ease',
-      }}
-      title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-    >
-      {isDark ? <SunIcon /> : <MoonIcon />}
-      <span className="text-[11px] font-medium">{isDark ? 'Light' : 'Dark'}</span>
-    </button>
-  )
 }
 
 function ClientLogo({ client, size }: { client: { company_name: string; logo_url: string | null }, size: number }) {
@@ -253,21 +219,28 @@ function NavItem({ href, icon, label, active, indent = false }: {
   active: boolean
   indent?: boolean
 }) {
-  const [hovered, setHovered] = useState(false)
-  const lit = active || hovered
-
   return (
     <Link
       href={href}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      className="flex items-center gap-2.5 px-2 py-2 rounded-lg text-[13px] relative"
+      className="flex items-center gap-2.5 px-2 py-2 rounded-lg text-sm relative"
       style={{
         paddingLeft: indent ? '0.875rem' : undefined,
-        background: lit ? 'var(--bg-hover)' : 'transparent',
-        color: lit ? 'var(--text-1)' : 'var(--text-2)',
+        background: active ? 'var(--bg-hover)' : 'transparent',
+        color: active ? 'var(--text-1)' : 'var(--text-2)',
         fontWeight: active ? 500 : 400,
         transition: 'background-color 0.15s ease, color 0.15s ease',
+      }}
+      onMouseEnter={e => {
+        if (!active) {
+          e.currentTarget.style.background = 'var(--bg-hover)'
+          e.currentTarget.style.color = 'var(--text-1)'
+        }
+      }}
+      onMouseLeave={e => {
+        if (!active) {
+          e.currentTarget.style.background = 'transparent'
+          e.currentTarget.style.color = 'var(--text-2)'
+        }
       }}
     >
       {active && (
@@ -276,7 +249,7 @@ function NavItem({ href, icon, label, active, indent = false }: {
           style={{ background: 'var(--text-1)' }}
         />
       )}
-      <span style={{ color: lit ? 'var(--text-1)' : 'var(--text-3)', flexShrink: 0, transition: 'color 0.15s ease' }}>{icon}</span>
+      <span style={{ color: active ? 'var(--text-1)' : 'var(--text-3)', flexShrink: 0 }}>{icon}</span>
       {label}
     </Link>
   )
@@ -287,23 +260,30 @@ function ClientLink({ href, active, client }: {
   active: boolean
   client: { company_name: string; logo_url: string | null }
 }) {
-  const [hovered, setHovered] = useState(false)
-  const lit = active || hovered
-
   return (
     <Link
       href={href}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
       className="flex items-center gap-2.5 px-2 py-2 rounded-lg"
       style={{
-        background: lit ? 'var(--bg-hover)' : 'transparent',
-        color: lit ? 'var(--text-1)' : 'var(--text-2)',
+        background: active ? 'var(--bg-hover)' : 'transparent',
+        color: active ? 'var(--text-1)' : 'var(--text-2)',
         transition: 'background-color 0.15s ease, color 0.15s ease',
+      }}
+      onMouseEnter={e => {
+        if (!active) {
+          e.currentTarget.style.background = 'var(--bg-hover)'
+          e.currentTarget.style.color = 'var(--text-1)'
+        }
+      }}
+      onMouseLeave={e => {
+        if (!active) {
+          e.currentTarget.style.background = 'transparent'
+          e.currentTarget.style.color = 'var(--text-2)'
+        }
       }}
     >
       <ClientLogo client={client} size={18} />
-      <span className="text-[13px] truncate">{client.company_name}</span>
+      <span className="text-sm truncate">{client.company_name}</span>
     </Link>
   )
 }
@@ -333,23 +313,11 @@ function ChartIcon() {
 function SwatchIcon() {
   return <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="5" cy="8" r="4" stroke="currentColor" strokeWidth="1.4" /><circle cx="11" cy="8" r="4" stroke="currentColor" strokeWidth="1.4" /></svg>
 }
-function SunIcon() {
-  return <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="3" stroke="currentColor" strokeWidth="1.5" /><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.22 3.22l1.42 1.42M11.36 11.36l1.42 1.42M3.22 12.78l1.42-1.42M11.36 4.64l1.42-1.42" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
-}
-function MoonIcon() {
-  return <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M13.5 10A6.5 6.5 0 016 2.5a6.5 6.5 0 100 11 6.5 6.5 0 007.5-3.5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /></svg>
-}
 function BookmarkIcon() {
   return <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 2h10a1 1 0 011 1v11l-6-3-6 3V3a1 1 0 011-1z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" /></svg>
 }
 function GearIcon() {
   return <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" strokeWidth="1.4"/><path d="M8 1v1.5M8 13.5V15M1 8h1.5M13.5 8H15M3.05 3.05l1.06 1.06M11.89 11.89l1.06 1.06M3.05 12.95l1.06-1.06M11.89 4.11l1.06-1.06" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg>
-}
-function CheckIcon() {
-  return <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="14" height="14" rx="3" stroke="currentColor" strokeWidth="1.4"/><path d="M4.5 8l2.5 2.5 4.5-4.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
-}
-function AlertIcon() {
-  return <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 1.5L1 13.5h14L8 1.5z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/><path d="M8 6v3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/><circle cx="8" cy="11.5" r="0.75" fill="currentColor"/></svg>
 }
 function ReportsIcon() {
   return <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2" y="1" width="12" height="14" rx="1.5" stroke="currentColor" strokeWidth="1.4"/><path d="M5 5h6M5 8h6M5 11h4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg>
@@ -359,4 +327,7 @@ function VideoIcon() {
 }
 function ScriptLibIcon() {
   return <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="2" width="10" height="12" rx="1.5" stroke="currentColor" strokeWidth="1.4"/><path d="M11 5l4-2v10l-4-2V5z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/><path d="M4 6h5M4 9h4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg>
+}
+function PersonIcon() {
+  return <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" strokeWidth="1.4"/><path d="M2 14c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg>
 }

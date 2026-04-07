@@ -133,7 +133,7 @@ function LoginForm() {
               type="submit"
               disabled={loading}
               className="w-full py-2.5 rounded-lg text-sm font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-2"
-              style={{ background: 'var(--accent)', color: 'var(--accent-fg)' }}
+              style={{ background: 'var(--text-1)', color: 'var(--bg)' }}
             >
               {loading ? 'Signing in…' : 'Sign in'}
             </button>
