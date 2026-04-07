@@ -11,9 +11,13 @@ A client at Rework is an active engagement — a business we are currently build
 ```
 clients/
   {client-name}/
-    overview.md     ← Completed intake profile (all fields below, filled in)
-    reviews.md      ← Curated key quotes from reviews that inform the ICP
-    icp.md          ← The full three-profile ICP research document
+    overview.md              ← Completed intake profile (all fields below, filled in)
+    services.md              ← Full service list, pricing, service area, financing details
+    competitors.md           ← Known and researched competitor list
+    reviews_raw.md           ← Raw scraped review text (intermediate data, created during ICP build)
+    reviews.md               ← Curated key quotes from reviews that inform the ICP
+    icp.md                   ← The full six-profile ICP research document
+    interview_transcript.txt ← Owner interview transcript (if provided via Grill Them)
 ```
 
 **Naming convention:** lowercase, hyphens for spaces. Examples:
@@ -23,9 +27,11 @@ clients/
 
 **Rules:**
 - `overview.md` is filled out at onboarding and kept updated as the engagement evolves
-- `reviews.md` holds curated quotes only — raw scraped data stays in `.tmp/` during processing
-- `icp.md` is the master research document — the most important file in the client folder
-- Never store API keys, credentials, or raw data dumps here
+- `services.md` and `competitors.md` are created at onboarding from the intake form
+- `reviews_raw.md` holds raw scraped review data — created automatically during the ICP build workflow
+- `reviews.md` holds curated quotes only — extracted from `reviews_raw.md` during ICP synthesis
+- `icp.md` is the master research document — the most important file in the client folder. It contains six profiles: Brand Voice, Ideal Customer Profile, Offer Extraction, Messaging & Positioning, Marketing Channels, and Customer Acquisition & Sales Process.
+- Never store API keys, credentials, or unrelated data dumps here
 - If regenerating a deliverable, save as `icp_v2.md` rather than overwriting — ask first
 
 ---
@@ -78,7 +84,8 @@ Every `overview.md` must contain all of the following fields. Blank fields shoul
 
 1. Create folder: `clients/{client-name}/`
 2. Create `overview.md` using the template above — fill in all fields from the onboarding call
-3. Create empty `reviews.md` and `icp.md` files as placeholders
-4. Run the ICP research workflow to populate `reviews.md` and `icp.md`
+3. Create `services.md`, `competitors.md`, and empty `icp.md` as placeholders
+4. Run `python tools/sync_client_to_supabase.py <slug>` to push to Supabase so the Platform can see the client
+5. Run the ICP research workflow (`build_icp.md`) to populate `reviews_raw.md`, `reviews.md`, and `icp.md`
 
 The `overview.md` is completed at onboarding. The `icp.md` is the output of a full research process — it is not filled in manually.
