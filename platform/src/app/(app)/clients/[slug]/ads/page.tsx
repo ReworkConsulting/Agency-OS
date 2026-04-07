@@ -36,7 +36,7 @@ export default async function AdsPage({
   ])
 
   return (
-    <div className="animate-fade-in">
+    <div className="">
       <div className="px-8 pt-8 pb-0">
         <div className="mb-5">
           <p className="text-xs text-zinc-600 mb-1">Ads</p>

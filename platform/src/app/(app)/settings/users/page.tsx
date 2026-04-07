@@ -79,7 +79,7 @@ export default function UsersSettingsPage() {
   if (loading) return <Skeleton />
 
   return (
-    <div className="p-8 max-w-3xl animate-fade-in">
+    <div className="p-8 max-w-3xl">
       <div className="flex items-start justify-between mb-8">
         <div>
           <h1 className="text-xl font-semibold" style={{ color: 'var(--text-1)' }}>Users</h1>

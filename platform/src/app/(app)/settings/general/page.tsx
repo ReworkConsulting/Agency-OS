@@ -59,7 +59,7 @@ export default function GeneralSettingsPage() {
   if (loading) return <PageSkeleton />
 
   return (
-    <div className="p-8 max-w-2xl animate-fade-in">
+    <div className="p-8 max-w-2xl">
       <PageHeader
         title="General"
         description="Agency branding and platform defaults."

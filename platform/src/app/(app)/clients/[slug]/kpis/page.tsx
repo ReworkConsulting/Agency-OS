@@ -41,7 +41,7 @@ export default async function ClientKpisPage({ params }: { params: Promise<{ slu
   const { client, snapshots } = data
 
   return (
-    <div className="p-8 max-w-3xl animate-fade-in">
+    <div className="p-8 max-w-3xl">
       <div className="mb-8">
         <h1 className="text-2xl font-semibold mb-1" style={{ color: 'var(--text-1)' }}>KPI Tracking</h1>
         <p className="text-sm" style={{ color: 'var(--text-3)' }}>{client.company_name} · Monthly performance</p>

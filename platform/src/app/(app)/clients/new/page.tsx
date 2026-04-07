@@ -34,7 +34,7 @@ export default function NewClientPage() {
   }
 
   return (
-    <div className="p-8 max-w-3xl animate-fade-in">
+    <div className="p-8 max-w-3xl">
       <div className="mb-8">
         <h1 className="text-2xl font-semibold" style={{ color: 'var(--text-1)' }}>New Client</h1>
         <p className="text-sm mt-1" style={{ color: 'var(--text-3)' }}>Fill in the intake details to create the client workspace.</p>

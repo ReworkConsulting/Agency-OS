@@ -20,7 +20,7 @@ export default async function BrandPage({
   if (!client) notFound()
 
   return (
-    <div className="animate-fade-in">
+    <div className="">
       <div className="px-8 pt-8 pb-0">
         <div className="mb-5">
           <p className="text-xs mb-1" style={{ color: 'var(--text-3)' }}>Brand</p>

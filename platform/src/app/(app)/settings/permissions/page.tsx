@@ -119,7 +119,7 @@ export default function PermissionsPage() {
   if (loading) return <Skeleton />
 
   return (
-    <div className="p-8 max-w-2xl animate-fade-in">
+    <div className="p-8 max-w-2xl">
       <div className="mb-8">
         <h1 className="text-xl font-semibold" style={{ color: 'var(--text-1)' }}>Permissions</h1>
         <p className="text-sm mt-1" style={{ color: 'var(--text-3)' }}>

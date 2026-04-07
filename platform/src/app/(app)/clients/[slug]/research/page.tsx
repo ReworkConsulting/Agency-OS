@@ -77,7 +77,7 @@ export default async function ResearchPage({
   if (client.gbp_url) prefills.gbp_url = client.gbp_url
 
   return (
-    <div className="animate-fade-in">
+    <div className="">
       {/* Header */}
       <div className="px-8 pt-8 pb-0">
         <div className="flex items-center justify-between mb-5">

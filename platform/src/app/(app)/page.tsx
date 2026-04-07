@@ -97,7 +97,7 @@ export default async function DashboardPage() {
   const clientsForFeed = clientHealth.map((c) => ({ id: c.id, company_name: c.company_name }))
 
   return (
-    <div className="p-8 max-w-[1200px] animate-fade-in">
+    <div className="p-8 max-w-[1200px]">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-semibold mb-1" style={{ color: 'var(--text-1)' }}>Mission Control</h1>

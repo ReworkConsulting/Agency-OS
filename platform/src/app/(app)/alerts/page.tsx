@@ -44,7 +44,7 @@ export default async function AlertsPage() {
   const criticalCount = alerts.filter((a) => a.severity === 'critical' && a.status !== 'resolved').length
 
   return (
-    <div className="p-8 max-w-5xl animate-fade-in">
+    <div className="p-8 max-w-5xl">
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-semibold mb-1" style={{ color: 'var(--text-1)' }}>Alerts</h1>

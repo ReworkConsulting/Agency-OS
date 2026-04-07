@@ -3,6 +3,8 @@ import { cookies } from 'next/headers'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { PreviewBanner } from '@/components/layout/PreviewBanner'
 import { TopBar } from '@/components/layout/TopBar'
+import { PageTransitionWrapper } from '@/components/layout/PageTransitionWrapper'
+import { TooltipProvider } from '@/components/ui/tooltip'
 import { createServerClient } from '@/lib/supabase/server'
 
 const PREVIEW_COOKIE = 'agency_os_preview_user'
@@ -94,7 +96,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         />
         <main className="flex-1 min-w-0 overflow-auto flex flex-col" style={{ background: 'var(--bg)' }}>
           <TopBar />
-          {children}
+          <TooltipProvider>
+            <PageTransitionWrapper>{children}</PageTransitionWrapper>
+          </TooltipProvider>
         </main>
       </div>
     </>

@@ -51,7 +51,7 @@ export default async function TasksPage() {
   }).length
 
   return (
-    <div className="p-8 flex flex-col h-full min-h-screen animate-fade-in">
+    <div className="p-8 flex flex-col h-full min-h-screen">
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-start justify-between">

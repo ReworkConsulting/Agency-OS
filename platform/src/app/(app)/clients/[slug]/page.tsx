@@ -33,7 +33,7 @@ export default async function ClientDashboard({ params }: { params: Promise<{ sl
   const { client, competitors, icp, review_count, recent_runs } = data
 
   return (
-    <div className="animate-fade-in">
+    <div className="">
       {/* Header */}
       <div className="px-8 pt-8 pb-0">
         <div className="flex items-start justify-between mb-6">
