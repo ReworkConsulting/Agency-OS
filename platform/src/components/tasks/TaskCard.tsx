@@ -43,17 +43,16 @@ export function TaskCard({ task, onClick, onFlag }: TaskCardProps) {
   return (
     <div
       onClick={onClick}
-      className="rounded-lg p-3 cursor-pointer group transition-all duration-150 hover:translate-y-[-1px]"
+      className="rounded-md p-3 cursor-pointer group transition-colors duration-150"
       style={{
         background: 'var(--bg-card)',
         border: '1px solid var(--border)',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
       }}
     >
       {/* Priority + title */}
       <div className="flex items-start gap-2 mb-2">
         <span
-          className="mt-1 w-2 h-2 rounded-full shrink-0"
+          className="mt-1 w-1.5 h-1.5 rounded-full shrink-0"
           style={{ background: PRIORITY_COLORS[task.priority] ?? PRIORITY_COLORS.normal }}
           title={PRIORITY_LABELS[task.priority]}
         />

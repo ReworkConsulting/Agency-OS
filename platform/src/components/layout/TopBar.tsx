@@ -57,7 +57,7 @@ export function TopBar() {
       <div className="relative" ref={panelRef}>
         <button
           onClick={() => setPanelOpen((v) => !v)}
-          className="relative flex items-center justify-center w-8 h-8 rounded-lg transition-all"
+          className="relative flex items-center justify-center w-8 h-8 rounded-md transition-all"
           style={{
             background: panelOpen ? 'var(--bg-hover)' : 'transparent',
             border: '1px solid transparent',
@@ -79,7 +79,7 @@ export function TopBar() {
         {/* Panel */}
         {panelOpen && (
           <div
-            className="absolute right-0 top-full mt-2 w-[320px] rounded-xl shadow-xl z-50 overflow-hidden"
+            className="absolute right-0 top-full mt-2 w-[320px] rounded-md z-50 overflow-hidden"
             style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
           >
             {/* Panel header */}

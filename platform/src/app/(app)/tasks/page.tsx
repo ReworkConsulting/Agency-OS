@@ -51,21 +51,19 @@ export default async function TasksPage() {
   }).length
 
   return (
-    <div className="p-8 flex flex-col h-full min-h-screen">
+    <div className="px-8 pt-10 pb-8 flex flex-col h-full min-h-screen">
       {/* Header */}
       <div className="mb-6">
-        <div className="flex items-start justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold mb-1" style={{ color: 'var(--text-1)' }}>
-              Task Board
-            </h1>
-            <p className="text-sm" style={{ color: 'var(--text-3)' }}>
-              {openCount} open task{openCount !== 1 ? 's' : ''}
-              {overdueCount > 0 && (
-                <span style={{ color: '#ef4444' }}> · {overdueCount} overdue</span>
-              )}
-            </p>
-          </div>
+        <div className="flex items-baseline gap-3">
+          <h1 className="text-base font-semibold" style={{ color: 'var(--text-1)' }}>
+            Task Board
+          </h1>
+          <p className="text-xs" style={{ color: 'var(--text-3)' }}>
+            {openCount} open
+            {overdueCount > 0 && (
+              <span style={{ color: '#ef4444' }}> · {overdueCount} overdue</span>
+            )}
+          </p>
         </div>
       </div>
 

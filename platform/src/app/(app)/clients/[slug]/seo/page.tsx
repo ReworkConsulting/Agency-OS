@@ -20,10 +20,10 @@ export default async function SeoPage({
 
   return (
     <div className="">
-      <div className="px-8 pt-8 pb-0">
+      <div className="px-8 pt-10 pb-0">
         <div className="mb-5">
-          <p className="text-xs text-zinc-600 mb-1">SEO</p>
-          <h1 className="text-xl font-semibold text-white">{client.company_name}</h1>
+          <p className="text-[10px] uppercase tracking-widest mb-1" style={{ color: 'var(--text-3)' }}>SEO</p>
+          <h1 className="text-base font-semibold" style={{ color: 'var(--text-1)' }}>{client.company_name}</h1>
         </div>
         <ClientNav slug={slug} />
       </div>

@@ -79,18 +79,18 @@ export default async function ResearchPage({
   return (
     <div className="">
       {/* Header */}
-      <div className="px-8 pt-8 pb-0">
+      <div className="px-8 pt-10 pb-0">
         <div className="flex items-center justify-between mb-5">
           <div>
-            <p className="text-xs mb-1" style={{ color: 'var(--text-3)' }}>Research</p>
-            <h1 className="text-xl font-semibold" style={{ color: 'var(--text-1)' }}>{client.company_name}</h1>
+            <p className="text-[10px] uppercase tracking-widest mb-1" style={{ color: 'var(--text-3)' }}>Research</p>
+            <h1 className="text-base font-semibold" style={{ color: 'var(--text-1)' }}>{client.company_name}</h1>
           </div>
           {icp && (
             <div
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs"
+              className="flex items-center gap-2 px-2.5 py-1 rounded-md text-[10px] uppercase tracking-widest"
               style={{
-                background: 'rgba(34,197,94,0.06)',
-                border: '1px solid rgba(34,197,94,0.15)',
+                background: 'var(--bg-subtle)',
+                border: '1px solid var(--border)',
                 color: '#16a34a',
               }}
             >
@@ -125,7 +125,7 @@ export default async function ResearchPage({
             {/* Run panel + exports (right 40%) */}
             <div className="col-span-2 space-y-6">
               <div>
-                <p className="text-[10px] font-bold tracking-widest uppercase mb-4" style={{ color: 'var(--text-3)' }}>
+                <p className="text-[10px] font-semibold tracking-widest uppercase mb-4" style={{ color: 'var(--text-3)' }}>
                   Re-run Research
                 </p>
                 <WorkflowPanel
@@ -138,7 +138,7 @@ export default async function ResearchPage({
               </div>
 
               <div>
-                <p className="text-[10px] font-bold tracking-widest uppercase mb-3" style={{ color: 'var(--text-3)' }}>
+                <p className="text-[10px] font-semibold tracking-widest uppercase mb-3" style={{ color: 'var(--text-3)' }}>
                   Import ICP
                 </p>
                 <IcpImport clientSlug={slug} />
@@ -147,11 +147,11 @@ export default async function ResearchPage({
               {/* Export history */}
               {icpExports.length > 0 && (
                 <div>
-                  <p className="text-[10px] font-bold tracking-widest uppercase mb-3" style={{ color: 'var(--text-3)' }}>
+                  <p className="text-[10px] font-semibold tracking-widest uppercase mb-3" style={{ color: 'var(--text-3)' }}>
                     Exported PDFs
                   </p>
                   <div
-                    className="rounded-xl overflow-hidden"
+                    className="rounded-md overflow-hidden"
                     style={{ border: '1px solid var(--border)', background: 'var(--bg-card)' }}
                   >
                     {icpExports.map((exp, i) => (
@@ -195,13 +195,13 @@ export default async function ResearchPage({
           <div className="max-w-2xl mx-auto">
             <div className="text-center mb-8">
               <div
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs mb-4"
+                className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md text-[10px] uppercase tracking-widest mb-4"
                 style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border)', color: 'var(--text-3)' }}
               >
                 <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--text-4)' }} />
                 No ICP document yet
               </div>
-              <h2 className="text-lg font-semibold mb-2" style={{ color: 'var(--text-1)' }}>
+              <h2 className="text-base font-semibold mb-2" style={{ color: 'var(--text-1)' }}>
                 Build the ICP Document
               </h2>
               <p className="text-sm leading-relaxed" style={{ color: 'var(--text-2)' }}>

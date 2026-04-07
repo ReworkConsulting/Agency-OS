@@ -79,15 +79,15 @@ export default function UsersSettingsPage() {
   if (loading) return <Skeleton />
 
   return (
-    <div className="p-8 max-w-3xl">
-      <div className="flex items-start justify-between mb-8">
+    <div className="px-8 pt-10 pb-8 max-w-3xl">
+      <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-xl font-semibold" style={{ color: 'var(--text-1)' }}>Users</h1>
-          <p className="text-sm mt-1" style={{ color: 'var(--text-3)' }}>Manage team members and their roles.</p>
+          <h1 className="text-base font-semibold" style={{ color: 'var(--text-1)' }}>Users</h1>
+          <p className="text-xs mt-1" style={{ color: 'var(--text-3)' }}>Manage team members and their roles.</p>
         </div>
         <button
           onClick={() => setShowInvite(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium transition-all"
           style={{ background: 'var(--accent)', color: 'var(--accent-fg)' }}
         >
           <PlusIcon /> Invite User
@@ -97,12 +97,12 @@ export default function UsersSettingsPage() {
       {/* Invite modal */}
       {showInvite && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.5)' }}>
-          <div className="w-full max-w-sm mx-4 rounded-2xl p-6" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+          <div className="w-full max-w-sm mx-4 rounded-md p-6" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
             <h2 className="text-[15px] font-semibold mb-1" style={{ color: 'var(--text-1)' }}>Invite User</h2>
             <p className="text-xs mb-5" style={{ color: 'var(--text-3)' }}>They&apos;ll receive an email to set their password.</p>
 
             {inviteError && (
-              <div className="mb-4 px-3 py-2 rounded-lg text-xs" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)', color: '#dc2626' }}>
+              <div className="mb-4 px-3 py-2 rounded-md text-xs" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)', color: '#dc2626' }}>
                 {inviteError}
               </div>
             )}
@@ -123,7 +123,7 @@ export default function UsersSettingsPage() {
                     required
                     autoFocus
                     placeholder="team@rework.com"
-                    className="w-full px-3 py-2 rounded-lg text-sm focus:outline-none"
+                    className="w-full px-3 py-2 rounded-md text-sm focus:outline-none"
                     style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border)', color: 'var(--text-1)' }}
                   />
                 </div>
@@ -131,7 +131,7 @@ export default function UsersSettingsPage() {
                   <button
                     type="submit"
                     disabled={inviteLoading}
-                    className="flex-1 py-2 rounded-lg text-sm font-medium transition-all disabled:opacity-50"
+                    className="flex-1 py-2 rounded-md text-sm font-medium transition-all disabled:opacity-50"
                     style={{ background: 'var(--accent)', color: 'var(--accent-fg)' }}
                   >
                     {inviteLoading ? 'Sending…' : 'Send Invite'}
@@ -139,7 +139,7 @@ export default function UsersSettingsPage() {
                   <button
                     type="button"
                     onClick={() => { setShowInvite(false); setInviteEmail(''); setInviteError(null) }}
-                    className="px-4 py-2 rounded-lg text-sm transition-all"
+                    className="px-4 py-2 rounded-md text-sm transition-all"
                     style={{ border: '1px solid var(--border)', color: 'var(--text-2)' }}
                   >
                     Cancel
@@ -152,12 +152,12 @@ export default function UsersSettingsPage() {
       )}
 
       {/* Users table */}
-      <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+      <div className="rounded-md overflow-hidden" style={{ border: '1px solid var(--border)' }}>
         <table className="w-full">
           <thead>
             <tr style={{ background: 'var(--bg-subtle)', borderBottom: '1px solid var(--border)' }}>
               {['User', 'Role', 'Joined', 'Actions'].map(col => (
-                <th key={col} className="px-4 py-3 text-left text-[10px] font-bold tracking-widest uppercase" style={{ color: 'var(--text-3)' }}>
+                <th key={col} className="px-4 py-3 text-left text-[10px] font-semibold tracking-widest uppercase" style={{ color: 'var(--text-3)' }}>
                   {col}
                 </th>
               ))}
@@ -241,7 +241,7 @@ function Skeleton() {
   return (
     <div className="p-8 max-w-3xl space-y-3">
       {[...Array(5)].map((_, i) => (
-        <div key={i} className="h-12 rounded-lg animate-pulse" style={{ background: 'var(--bg-subtle)' }} />
+        <div key={i} className="h-12 rounded-md animate-pulse" style={{ background: 'var(--bg-subtle)' }} />
       ))}
     </div>
   )

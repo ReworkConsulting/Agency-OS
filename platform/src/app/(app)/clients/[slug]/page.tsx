@@ -35,29 +35,28 @@ export default async function ClientDashboard({ params }: { params: Promise<{ sl
   return (
     <div className="">
       {/* Header */}
-      <div className="px-8 pt-8 pb-0">
-        <div className="flex items-start justify-between mb-6">
-          <div className="flex items-center gap-4">
+      <div className="px-8 pt-10 pb-0">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
             {client.logo_url && (
               <div
-                className="w-12 h-12 rounded-xl flex items-center justify-center p-1.5 shrink-0"
+                className="w-9 h-9 rounded-md flex items-center justify-center p-1 shrink-0"
                 style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border)' }}
               >
-                <Image src={client.logo_url} alt={client.company_name} width={44} height={44} className="object-contain w-full h-full" unoptimized />
+                <Image src={client.logo_url} alt={client.company_name} width={32} height={32} className="object-contain w-full h-full" unoptimized />
               </div>
             )}
             <div>
-              <p className="text-xs mb-0.5" style={{ color: 'var(--text-3)' }}>
+              <p className="text-[10px] uppercase tracking-widest mb-0.5" style={{ color: 'var(--text-3)' }}>
                 <Link href="/clients" className="transition-colors hover:opacity-70">Clients</Link>
                 {' / '}{client.company_name}
               </p>
-              <h1 className="text-xl font-semibold" style={{ color: 'var(--text-1)' }}>{client.company_name}</h1>
-              {client.owner_name && <p className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>{client.owner_name}</p>}
+              <h1 className="text-base font-semibold" style={{ color: 'var(--text-1)' }}>{client.company_name}</h1>
             </div>
           </div>
           <Link
             href={`/clients/${slug}/research`}
-            className="px-4 py-2 text-sm font-medium rounded-md transition-colors"
+            className="px-3 py-1.5 text-xs font-medium rounded-md transition-colors"
             style={{ background: 'var(--accent)', color: 'var(--accent-fg)' }}
           >
             Run Research
@@ -78,8 +77,8 @@ export default async function ClientDashboard({ params }: { params: Promise<{ sl
 
         <div className="grid grid-cols-3 gap-6">
           {/* Client Details */}
-          <div className="col-span-2 rounded-xl p-6" style={{ border: '1px solid var(--border)', background: 'var(--bg-card)' }}>
-            <h2 className="text-[10px] font-bold tracking-widest uppercase mb-5" style={{ color: 'var(--text-3)' }}>Client Details</h2>
+          <div className="col-span-2 rounded-md p-6" style={{ border: '1px solid var(--border)', background: 'var(--bg-card)' }}>
+            <h2 className="text-[10px] font-semibold tracking-widest uppercase mb-5" style={{ color: 'var(--text-3)' }}>Client Details</h2>
             <div className="grid grid-cols-2 gap-x-8">
               <div className="divide-y" style={{ '--tw-divide-opacity': 1 } as React.CSSProperties}>
                 <Detail label="Website" value={client.website_url} link />
@@ -99,7 +98,7 @@ export default async function ClientDashboard({ params }: { params: Promise<{ sl
 
             {competitors.length > 0 && (
               <div className="mt-6 pt-5" style={{ borderTop: '1px solid var(--border)' }}>
-                <p className="text-[10px] font-bold tracking-widest uppercase mb-3" style={{ color: 'var(--text-3)' }}>
+                <p className="text-[10px] font-semibold tracking-widest uppercase mb-3" style={{ color: 'var(--text-3)' }}>
                   Competitors ({competitors.length})
                 </p>
                 <div className="space-y-2">
@@ -119,8 +118,8 @@ export default async function ClientDashboard({ params }: { params: Promise<{ sl
 
           {/* Right panel */}
           <div className="space-y-4">
-            <div className="rounded-xl p-4" style={{ border: '1px solid var(--border)', background: 'var(--bg-card)' }}>
-              <p className="text-[10px] font-bold tracking-widest uppercase mb-3" style={{ color: 'var(--text-3)' }}>Quick Links</p>
+            <div className="rounded-md p-4" style={{ border: '1px solid var(--border)', background: 'var(--bg-card)' }}>
+              <p className="text-[10px] font-semibold tracking-widest uppercase mb-3" style={{ color: 'var(--text-3)' }}>Quick Links</p>
               <div className="space-y-1">
                 {[
                   { label: 'Run Research', href: `/clients/${slug}/research` },
@@ -128,7 +127,7 @@ export default async function ClientDashboard({ params }: { params: Promise<{ sl
                   { label: 'SEO Audit', href: `/clients/${slug}/seo` },
                 ].map(item => (
                   <Link key={item.href} href={item.href}
-                    className="flex items-center justify-between px-3 py-2 rounded-lg text-xs transition-all"
+                    className="flex items-center justify-between px-3 py-2 rounded-md text-xs transition-all"
                     style={{ color: 'var(--text-2)' }}
                   >
                     {item.label}
@@ -138,8 +137,8 @@ export default async function ClientDashboard({ params }: { params: Promise<{ sl
               </div>
             </div>
 
-            <div className="rounded-xl p-4" style={{ border: '1px solid var(--border)', background: 'var(--bg-card)' }}>
-              <p className="text-[10px] font-bold tracking-widest uppercase mb-3" style={{ color: 'var(--text-3)' }}>Recent Runs</p>
+            <div className="rounded-md p-4" style={{ border: '1px solid var(--border)', background: 'var(--bg-card)' }}>
+              <p className="text-[10px] font-semibold tracking-widest uppercase mb-3" style={{ color: 'var(--text-3)' }}>Recent Runs</p>
               {recent_runs.length === 0 ? (
                 <p className="text-xs" style={{ color: 'var(--text-4)' }}>No workflow runs yet.</p>
               ) : (
@@ -178,12 +177,12 @@ function StatusCard({ label, value, sub, accent }: { label: string; value: strin
   const dotColor = accent === 'green' ? '#22c55e' : accent === 'yellow' ? '#eab308' : 'var(--text-4)'
   const subColor = accent === 'green' ? '#16a34a' : accent === 'yellow' ? '#ca8a04' : 'var(--text-3)'
   return (
-    <div className="rounded-xl p-4" style={{ border: '1px solid var(--border)', background: 'var(--bg-card)' }}>
+    <div className="rounded-md p-4" style={{ border: '1px solid var(--border)', background: 'var(--bg-card)' }}>
       <div className="flex items-center gap-2 mb-2.5">
         <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: dotColor }} />
         <span className="text-xs" style={{ color: 'var(--text-3)' }}>{label}</span>
       </div>
-      <p className="text-xl font-semibold" style={{ color: 'var(--text-1)' }}>{value}</p>
+      <p className="text-lg font-semibold" style={{ color: 'var(--text-1)' }}>{value}</p>
       <p className="text-[10px] mt-1" style={{ color: subColor }}>{sub}</p>
     </div>
   )

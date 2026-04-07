@@ -97,13 +97,15 @@ export default async function DashboardPage() {
   const clientsForFeed = clientHealth.map((c) => ({ id: c.id, company_name: c.company_name }))
 
   return (
-    <div className="p-8 max-w-[1200px]">
+    <div className="px-8 pt-10 pb-8 max-w-[1200px]">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold mb-1" style={{ color: 'var(--text-1)' }}>Mission Control</h1>
-        <p className="text-sm" style={{ color: 'var(--text-3)' }} suppressHydrationWarning>
-          {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
-        </p>
+        <div className="flex items-baseline gap-3">
+          <h1 className="text-base font-semibold" style={{ color: 'var(--text-1)' }}>Mission Control</h1>
+          <p className="text-xs" style={{ color: 'var(--text-3)' }} suppressHydrationWarning>
+            {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+          </p>
+        </div>
       </div>
 
       {/* ── Row 1: Status cards ── */}
@@ -119,14 +121,14 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-3 gap-6 mb-8">
         <div className="col-span-2">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold" style={{ color: 'var(--text-1)' }}>Client Health</h2>
-            <Link href="/clients" className="text-xs" style={{ color: 'var(--text-3)' }}>View all →</Link>
+            <h2 className="text-[10px] font-semibold tracking-widest uppercase" style={{ color: 'var(--text-3)' }}>Client Health</h2>
+            <Link href="/clients" className="text-xs transition-opacity hover:opacity-70" style={{ color: 'var(--text-3)' }}>View all →</Link>
           </div>
           <ClientHealthGrid clients={clientHealth} />
         </div>
         <div>
           <div className="mb-3">
-            <h2 className="text-sm font-semibold" style={{ color: 'var(--text-1)' }}>Active Alerts</h2>
+            <h2 className="text-[10px] font-semibold tracking-widest uppercase" style={{ color: 'var(--text-3)' }}>Active Alerts</h2>
           </div>
           <AlertFeed initialAlerts={alerts} clients={clientsForFeed} teamMembers={teamMembers} />
         </div>
@@ -136,10 +138,10 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-2 gap-6">
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold" style={{ color: 'var(--text-1)' }}>Open Tasks</h2>
-            <Link href="/tasks" className="text-xs" style={{ color: 'var(--text-3)' }}>View board →</Link>
+            <h2 className="text-[10px] font-semibold tracking-widest uppercase" style={{ color: 'var(--text-3)' }}>Open Tasks</h2>
+            <Link href="/tasks" className="text-xs transition-opacity hover:opacity-70" style={{ color: 'var(--text-3)' }}>View board →</Link>
           </div>
-          <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+          <div className="rounded-md overflow-hidden" style={{ border: '1px solid var(--border)' }}>
             {topTasks.length === 0 ? (
               <div className="p-8 text-center">
                 <p className="text-xs" style={{ color: 'var(--text-3)' }}>No open tasks.</p>
@@ -151,8 +153,8 @@ export default async function DashboardPage() {
                   const overdue = task.due_date && task.due_date < today
                   const pc: Record<string, string> = { low: '#6b7280', normal: '#3b82f6', high: '#f59e0b', urgent: '#ef4444' }
                   return (
-                    <div key={task.id} className="flex items-center gap-3 px-4 py-3" style={{ borderBottom: i < topTasks.length - 1 ? '1px solid var(--border)' : undefined, background: 'var(--bg-card)' }}>
-                      <span className="w-2 h-2 rounded-full shrink-0" style={{ background: pc[task.priority] ?? '#3b82f6' }} />
+                    <div key={task.id} className="flex items-center gap-3 px-4 py-3" style={{ borderBottom: i < topTasks.length - 1 ? '1px solid var(--border-dim)' : undefined, background: 'var(--bg-card)' }}>
+                      <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: pc[task.priority] ?? '#3b82f6' }} />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm truncate" style={{ color: 'var(--text-1)' }}>{task.title}</p>
                         <p className="text-[11px]" style={{ color: 'var(--text-3)' }}>
@@ -173,13 +175,13 @@ export default async function DashboardPage() {
 
         <div>
           <div className="mb-3">
-            <h2 className="text-sm font-semibold" style={{ color: 'var(--text-1)' }}>Recent Activity</h2>
+            <h2 className="text-[10px] font-semibold tracking-widest uppercase" style={{ color: 'var(--text-3)' }}>Recent Activity</h2>
           </div>
-          <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+          <div className="rounded-md overflow-hidden" style={{ border: '1px solid var(--border)' }}>
             {activity.length === 0 ? (
               <div className="p-8 text-center"><p className="text-xs" style={{ color: 'var(--text-3)' }}>No recent activity.</p></div>
             ) : activity.map((item, i) => (
-              <div key={item.id} className="flex items-center gap-3 px-4 py-3" style={{ borderBottom: i < activity.length - 1 ? '1px solid var(--border)' : undefined, background: 'var(--bg-card)' }}>
+              <div key={item.id} className="flex items-center gap-3 px-4 py-3" style={{ borderBottom: i < activity.length - 1 ? '1px solid var(--border-dim)' : undefined, background: 'var(--bg-card)' }}>
                 <RunDot status={item.status} />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm truncate capitalize" style={{ color: 'var(--text-1)' }}>{item.label}</p>
@@ -201,17 +203,26 @@ function StatCard({ label, value, sub, accent = 'neutral', href }: {
   label: string; value: string; sub: string; accent?: 'green' | 'yellow' | 'red' | 'neutral'; href?: string
 }) {
   const subColor = accent === 'green' ? '#16a34a' : accent === 'yellow' ? '#ca8a04' : accent === 'red' ? '#ef4444' : 'var(--text-3)'
+  const dotColor = accent === 'green' ? '#22c55e' : accent === 'yellow' ? '#f59e0b' : accent === 'red' ? '#ef4444' : null
   const card = (
-    <div className="rounded-lg p-4 transition-all" style={{ border: '1px solid var(--border)', background: 'var(--bg-card)' }}>
-      <p className="text-xs mb-2" style={{ color: 'var(--text-3)' }}>{label}</p>
+    <div className="rounded-md p-4" style={{ border: '1px solid var(--border)', background: 'var(--bg-card)' }}>
+      <p className="text-[10px] uppercase tracking-widest mb-3" style={{ color: 'var(--text-3)' }}>{label}</p>
       <p className="text-2xl font-semibold" style={{ color: 'var(--text-1)' }}>{value}</p>
-      <p className="text-[11px] mt-1" style={{ color: subColor }}>{sub}</p>
+      <div className="flex items-center gap-1.5 mt-1.5">
+        {dotColor && <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: dotColor }} />}
+        <p className="text-[11px]" style={{ color: subColor }}>{sub}</p>
+      </div>
     </div>
   )
-  return href ? <Link href={href} className="block hover:opacity-80 transition-opacity">{card}</Link> : card
+  return href ? <Link href={href} className="block transition-opacity hover:opacity-80">{card}</Link> : card
 }
 
 function RunDot({ status }: { status: string }) {
-  const colors: Record<string, string> = { completed: 'bg-green-500', running: 'bg-blue-400 animate-pulse', failed: 'bg-red-500', cancelled: 'bg-zinc-400' }
-  return <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${colors[status] ?? 'bg-zinc-400'}`} />
+  const map: Record<string, string> = { completed: '#22c55e', running: '#3b82f6', failed: '#ef4444' }
+  return (
+    <span
+      className={`w-1.5 h-1.5 rounded-full shrink-0 ${status === 'running' ? 'animate-pulse' : ''}`}
+      style={{ background: map[status] ?? 'var(--text-4)' }}
+    />
+  )
 }

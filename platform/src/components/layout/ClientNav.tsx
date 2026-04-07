@@ -21,7 +21,7 @@ export function ClientNav({ slug }: ClientNavProps) {
   const base = `/clients/${slug}`
 
   return (
-    <nav className="flex gap-1" style={{ borderBottom: '1px solid var(--border)' }}>
+    <nav className="flex" style={{ borderBottom: '1px solid var(--border)' }}>
       {CLIENT_NAV_ITEMS.map((item) => {
         const href = item.segment ? `${base}/${item.segment}` : base
         const active = item.segment
@@ -32,11 +32,10 @@ export function ClientNav({ slug }: ClientNavProps) {
           <Link
             key={href}
             href={href}
-            className="px-3 py-3 text-sm border-b-2 -mb-px transition-colors"
+            className="pr-6 pb-3 text-[11px] font-medium tracking-wide uppercase border-b-2 -mb-px transition-colors duration-150"
             style={{
               borderBottomColor: active ? 'var(--text-1)' : 'transparent',
               color: active ? 'var(--text-1)' : 'var(--text-3)',
-              fontWeight: active ? 500 : 400,
             }}
           >
             {item.label}

@@ -27,9 +27,9 @@ export default async function AdLibraryPage() {
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--bg)' }}>
-      <div className="px-8 pt-8 pb-6 border-b border-zinc-800">
-        <h1 className="text-xl font-semibold text-white mb-1">Ad Library</h1>
-        <p className="text-xs text-zinc-500">
+      <div className="px-8 pt-10 pb-6" style={{ borderBottom: '1px solid var(--border)' }}>
+        <h1 className="text-base font-semibold mb-1" style={{ color: 'var(--text-1)' }}>Ad Library</h1>
+        <p className="text-xs" style={{ color: 'var(--text-3)' }}>
           Saved ads and brand inspiration — use as references for new campaigns.
         </p>
       </div>

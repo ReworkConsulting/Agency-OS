@@ -59,7 +59,7 @@ export default function GeneralSettingsPage() {
   if (loading) return <PageSkeleton />
 
   return (
-    <div className="p-8 max-w-2xl">
+    <div className="px-8 pt-10 pb-8 max-w-2xl">
       <PageHeader
         title="General"
         description="Agency branding and platform defaults."
@@ -110,7 +110,7 @@ export default function GeneralSettingsPage() {
                 <button
                   key={t}
                   onClick={() => setDefaultTheme(t)}
-                  className="px-4 py-2 rounded-lg text-xs font-medium transition-all capitalize"
+                  className="px-4 py-2 rounded-md text-xs font-medium transition-all capitalize"
                   style={{
                     background: defaultTheme === t ? 'var(--text-1)' : 'var(--bg-subtle)',
                     color: defaultTheme === t ? 'var(--bg)' : 'var(--text-2)',
@@ -129,7 +129,7 @@ export default function GeneralSettingsPage() {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="px-5 py-2.5 rounded-lg text-sm font-medium transition-all disabled:opacity-50"
+          className="px-5 py-2.5 rounded-md text-sm font-medium transition-all disabled:opacity-50"
           style={{ background: 'var(--accent)', color: 'var(--accent-fg)' }}
         >
           {saving ? 'Saving…' : 'Save Changes'}
@@ -144,7 +144,7 @@ export default function GeneralSettingsPage() {
   )
 }
 
-const inputCls = "mt-1.5 w-full px-3 py-2 rounded-lg text-sm focus:outline-none transition-colors"
+const inputCls = "mt-1.5 w-full px-3 py-2 rounded-md text-sm focus:outline-none transition-colors"
 const inputStyle = { background: 'var(--bg-subtle)', border: '1px solid var(--border)', color: 'var(--text-1)' }
 
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
@@ -160,8 +160,8 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section>
-      <h2 className="text-[10px] font-bold tracking-widest uppercase mb-4" style={{ color: 'var(--text-3)' }}>{title}</h2>
-      <div className="rounded-xl p-5 space-y-4" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+      <h2 className="text-[10px] font-semibold tracking-widest uppercase mb-4" style={{ color: 'var(--text-3)' }}>{title}</h2>
+      <div className="rounded-md p-5 space-y-4" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
         {children}
       </div>
     </section>
@@ -171,15 +171,15 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function PageHeader({ title, description }: { title: string; description: string }) {
   return (
     <div className="mb-8">
-      <h1 className="text-xl font-semibold" style={{ color: 'var(--text-1)' }}>{title}</h1>
-      <p className="text-sm mt-1" style={{ color: 'var(--text-3)' }}>{description}</p>
+      <h1 className="text-base font-semibold" style={{ color: 'var(--text-1)' }}>{title}</h1>
+      <p className="text-xs mt-1" style={{ color: 'var(--text-3)' }}>{description}</p>
     </div>
   )
 }
 
 function ErrorBanner({ message }: { message: string }) {
   return (
-    <div className="mb-6 px-4 py-3 rounded-xl text-sm" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)', color: '#dc2626' }}>
+    <div className="mb-6 px-4 py-3 rounded-md text-sm" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)', color: '#dc2626' }}>
       {message}
     </div>
   )
@@ -189,7 +189,7 @@ function PageSkeleton() {
   return (
     <div className="p-8 max-w-2xl space-y-4">
       {[...Array(4)].map((_, i) => (
-        <div key={i} className="h-10 rounded-lg animate-pulse" style={{ background: 'var(--bg-subtle)' }} />
+        <div key={i} className="h-10 rounded-md animate-pulse" style={{ background: 'var(--bg-subtle)' }} />
       ))}
     </div>
   )

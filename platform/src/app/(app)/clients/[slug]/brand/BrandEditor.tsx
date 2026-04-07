@@ -85,7 +85,7 @@ export function BrandEditor({
     <div className="space-y-6">
       {/* Preview strip */}
       <div
-        className="rounded-xl overflow-hidden"
+        className="rounded-md overflow-hidden"
         style={{ border: '1px solid var(--border)' }}
       >
         {/* Accent bar preview */}
@@ -142,7 +142,7 @@ export function BrandEditor({
 
       {/* Fields */}
       <div
-        className="rounded-xl p-6 space-y-5"
+        className="rounded-md p-6 space-y-5"
         style={{ border: '1px solid var(--border)', background: 'var(--bg-card)' }}
       >
         <div>
@@ -303,7 +303,7 @@ export function BrandEditor({
 
       {/* Info card */}
       <div
-        className="rounded-xl p-4"
+        className="rounded-md p-4"
         style={{ border: '1px solid var(--border-dim)', background: 'var(--bg-subtle)' }}
       >
         <p className="text-[11px] font-semibold mb-2" style={{ color: 'var(--text-2)' }}>Where brand colors are used</p>

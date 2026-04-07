@@ -144,7 +144,7 @@ export function TaskBoard({ initialTasks, clients, teamMembers }: TaskBoardProps
         </div>
         <button
           onClick={() => setModal({ open: true, task: null })}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all"
           style={{ background: 'var(--text-1)', color: 'var(--bg)' }}
         >
           <span className="text-base leading-none">+</span> New Task
@@ -161,12 +161,12 @@ export function TaskBoard({ initialTasks, clients, teamMembers }: TaskBoardProps
                 {/* Column header */}
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--text-2)' }}>
+                    <span className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: 'var(--text-3)' }}>
                       {col.label}
                     </span>
                     <span
-                      className="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
-                      style={{ background: 'var(--bg-subtle)', color: 'var(--text-3)' }}
+                      className="text-[10px] px-1.5 py-0.5 rounded font-medium"
+                      style={{ background: 'var(--bg-subtle)', color: 'var(--text-4)' }}
                     >
                       {colTasks.length}
                     </span>
@@ -187,7 +187,7 @@ export function TaskBoard({ initialTasks, clients, teamMembers }: TaskBoardProps
                     <div
                       ref={provided.innerRef}
                       {...provided.droppableProps}
-                      className="flex-1 rounded-lg p-2 space-y-2 min-h-[120px] transition-colors"
+                      className="flex-1 rounded-md p-2 space-y-2 min-h-[120px] transition-colors"
                       style={{
                         background: snapshot.isDraggingOver ? 'var(--bg-hover)' : 'var(--bg-subtle)',
                         border: '1px solid var(--border)',
@@ -267,7 +267,7 @@ function FilterSelect({ value, onChange, placeholder, children }: {
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="rounded-lg px-2.5 py-1.5 text-xs outline-none"
+      className="rounded-md px-2.5 py-1.5 text-xs outline-none"
       style={{
         background: 'var(--bg-card)',
         border: '1px solid var(--border)',
@@ -295,7 +295,7 @@ function FlagDialog({ taskTitle, onSubmit, onClose }: {
       style={{ background: 'rgba(0,0,0,0.6)' }}
     >
       <div
-        className="w-full max-w-sm rounded-xl p-6 shadow-2xl"
+        className="w-full max-w-sm rounded-md p-6"
         style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
       >
         <h3 className="text-sm font-semibold mb-4" style={{ color: 'var(--text-1)' }}>Flag as Problem</h3>
@@ -305,7 +305,7 @@ function FlagDialog({ taskTitle, onSubmit, onClose }: {
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full rounded-lg px-3 py-2 text-sm outline-none"
+              className="w-full rounded-md px-3 py-2 text-sm outline-none"
               style={{ background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--text-1)' }}
             />
           </div>
@@ -314,7 +314,7 @@ function FlagDialog({ taskTitle, onSubmit, onClose }: {
             <select
               value={severity}
               onChange={(e) => setSeverity(e.target.value)}
-              className="w-full rounded-lg px-3 py-2 text-sm outline-none"
+              className="w-full rounded-md px-3 py-2 text-sm outline-none"
               style={{ background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--text-1)' }}
             >
               <option value="warning">Warning</option>
@@ -324,7 +324,7 @@ function FlagDialog({ taskTitle, onSubmit, onClose }: {
           </div>
         </div>
         <div className="flex justify-end gap-2 mt-5">
-          <button onClick={onClose} className="px-3 py-1.5 rounded-lg text-sm" style={{ background: 'var(--bg-subtle)', color: 'var(--text-2)', border: '1px solid var(--border)' }}>
+          <button onClick={onClose} className="px-3 py-1.5 rounded-md text-sm" style={{ background: 'var(--bg-subtle)', color: 'var(--text-2)', border: '1px solid var(--border)' }}>
             Cancel
           </button>
           <button
@@ -334,7 +334,7 @@ function FlagDialog({ taskTitle, onSubmit, onClose }: {
               await onSubmit(title, severity)
               setSaving(false)
             }}
-            className="px-4 py-1.5 rounded-lg text-sm font-medium disabled:opacity-40"
+            className="px-4 py-1.5 rounded-md text-sm font-medium disabled:opacity-40"
             style={{ background: '#f59e0b', color: '#000' }}
           >
             {saving ? 'Flagging…' : 'Flag Alert'}

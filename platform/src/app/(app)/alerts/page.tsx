@@ -44,16 +44,18 @@ export default async function AlertsPage() {
   const criticalCount = alerts.filter((a) => a.severity === 'critical' && a.status !== 'resolved').length
 
   return (
-    <div className="p-8 max-w-5xl">
+    <div className="px-8 pt-10 pb-8 max-w-5xl">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold mb-1" style={{ color: 'var(--text-1)' }}>Alerts</h1>
-        <p className="text-sm" style={{ color: 'var(--text-3)' }}>
-          {openCount} open alert{openCount !== 1 ? 's' : ''}
-          {criticalCount > 0 && (
-            <span style={{ color: '#ef4444' }}> · {criticalCount} critical</span>
-          )}
-        </p>
+        <div className="flex items-baseline gap-3">
+          <h1 className="text-base font-semibold" style={{ color: 'var(--text-1)' }}>Alerts</h1>
+          <p className="text-xs" style={{ color: 'var(--text-3)' }}>
+            {openCount} open
+            {criticalCount > 0 && (
+              <span style={{ color: '#ef4444' }}> · {criticalCount} critical</span>
+            )}
+          </p>
+        </div>
       </div>
 
       <AlertTable

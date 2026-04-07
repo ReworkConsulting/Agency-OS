@@ -119,10 +119,10 @@ export default function PermissionsPage() {
   if (loading) return <Skeleton />
 
   return (
-    <div className="p-8 max-w-2xl">
+    <div className="px-8 pt-10 pb-8 max-w-2xl">
       <div className="mb-8">
-        <h1 className="text-xl font-semibold" style={{ color: 'var(--text-1)' }}>Permissions</h1>
-        <p className="text-sm mt-1" style={{ color: 'var(--text-3)' }}>
+        <h1 className="text-base font-semibold" style={{ color: 'var(--text-1)' }}>Permissions</h1>
+        <p className="text-xs mt-1" style={{ color: 'var(--text-3)' }}>
           Control what each team member can access. Admins always have full access.
         </p>
       </div>
@@ -133,7 +133,7 @@ export default function PermissionsPage() {
         <select
           value={selectedUserId}
           onChange={e => selectUser(e.target.value)}
-          className="w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none"
+          className="w-full px-3 py-2.5 rounded-md text-sm focus:outline-none"
           style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border)', color: 'var(--text-1)' }}
         >
           {users.map(u => (
@@ -206,7 +206,7 @@ export default function PermissionsPage() {
                 <button
                   key={opt}
                   onClick={() => setClientAccess(opt)}
-                  className="px-4 py-2 rounded-lg text-xs font-medium transition-all"
+                  className="px-4 py-2 rounded-md text-xs font-medium transition-all"
                   style={{
                     background: clientAccess === opt ? 'var(--text-1)' : 'var(--bg-subtle)',
                     color: clientAccess === opt ? 'var(--bg)' : 'var(--text-2)',
@@ -247,7 +247,7 @@ export default function PermissionsPage() {
       )}
 
       {users.length === 0 && (
-        <div className="rounded-xl p-8 text-center" style={{ border: '1px solid var(--border)', background: 'var(--bg-card)' }}>
+        <div className="rounded-md p-8 text-center" style={{ border: '1px solid var(--border)', background: 'var(--bg-card)' }}>
           <p className="text-sm" style={{ color: 'var(--text-3)' }}>
             No users yet. Go to{' '}
             <a href="/settings/users" style={{ color: 'var(--text-1)', textDecoration: 'underline' }}>
@@ -274,7 +274,7 @@ function CheckItem({ checked, onChange, label, badge }: {
     <label
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg cursor-pointer"
+      className="flex items-center gap-2.5 px-3 py-2.5 rounded-md cursor-pointer"
       style={{
         background: checked || hovered ? 'var(--bg-hover)' : 'var(--bg-subtle)',
         border: `1px solid ${checked ? 'var(--border)' : 'var(--border-dim)'}`,
@@ -318,7 +318,7 @@ function PreviewButton({ userId, userName }: { userId: string; userName: string 
       disabled={loading}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium disabled:opacity-50"
+      className="flex items-center gap-2 px-4 py-2 rounded-md text-xs font-medium disabled:opacity-50"
       style={{
         border: '1px solid var(--border)',
         color: hovered ? 'var(--text-1)' : 'var(--text-2)',
@@ -362,10 +362,10 @@ function Section({ title, description, children }: { title: string; description?
   return (
     <section>
       <div className="mb-3">
-        <h2 className="text-[10px] font-bold tracking-widest uppercase" style={{ color: 'var(--text-3)' }}>{title}</h2>
+        <h2 className="text-[10px] font-semibold tracking-widest uppercase" style={{ color: 'var(--text-3)' }}>{title}</h2>
         {description && <p className="text-xs mt-0.5" style={{ color: 'var(--text-4)' }}>{description}</p>}
       </div>
-      <div className="rounded-xl p-5" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+      <div className="rounded-md p-5" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
         {children}
       </div>
     </section>
@@ -379,7 +379,7 @@ function ClientAccessButton({ active, onClick, label }: { active: boolean; onCli
       onClick={onClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className="px-4 py-2 rounded-lg text-xs font-medium"
+      className="px-4 py-2 rounded-md text-xs font-medium"
       style={{
         background: active ? 'var(--text-1)' : hovered ? 'var(--bg-hover)' : 'var(--bg-subtle)',
         color: active ? 'var(--bg)' : hovered ? 'var(--text-1)' : 'var(--text-2)',
@@ -400,7 +400,7 @@ function SaveButton({ saving, onSave }: { saving: boolean; onSave: () => void })
       disabled={saving}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className="px-5 py-2.5 rounded-lg text-sm font-medium disabled:opacity-50"
+      className="px-5 py-2.5 rounded-md text-sm font-medium disabled:opacity-50"
       style={{
         background: 'var(--accent)',
         color: 'var(--accent-fg)',
@@ -421,7 +421,7 @@ function Skeleton() {
   return (
     <div className="p-8 max-w-2xl space-y-4">
       {[...Array(6)].map((_, i) => (
-        <div key={i} className="h-10 rounded-lg animate-pulse" style={{ background: 'var(--bg-subtle)' }} />
+        <div key={i} className="h-10 rounded-md animate-pulse" style={{ background: 'var(--bg-subtle)' }} />
       ))}
     </div>
   )
