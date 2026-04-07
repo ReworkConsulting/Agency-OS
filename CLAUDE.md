@@ -58,28 +58,41 @@ Agency OS/
 │       ├── icp.md              ← Completed six-profile ICP document
 │       └── interview_transcript.txt  ← Grill Them interview (if provided)
 │
+├── examples/                   ← Script reference library for video ad generation.
+│   └── scripts/                ← Training examples loaded by generate_video_scripts workflow.
+│       ├── README.md           ← How the example loader works, file format, naming conventions
+│       ├── b2c/                ← B2C examples organized by industry (hvac, roofing, solar, etc.)
+│       └── b2b/                ← B2B examples (agency-pitch, service-pitch)
+│
 ├── workflows/                  ← Markdown SOPs. Always read the workflow before executing.
 │   ├── router.md               ← Entry point — routes all requests to the right workflow
 │   ├── onboard_client.md       ← Client onboarding: parse intake, gap check, build files
-│   ├── build_icp.md            ← ICP research: scrape, research, synthesize, deliver
+│   ├── build_icp.md            ← ICP research: scrape, research, synthesize, deliver (Claude Code)
+│   ├── build_icp_platform.md   ← ICP synthesis for the Platform UI — PLATFORM-INTERNAL. Do not run manually.
 │   ├── generate_ads.md         ← Facebook ad copy generation (requires ICP first)
+│   ├── generate_video_scripts.md ← Video ad script generation (requires ICP first)
 │   ├── seo_audit.md            ← SEO audit and keyword gap analysis (requires ICP first)
 │   └── generate_report.md      ← Monthly performance report generation
 │
 ├── tools/                      ← Python scripts for deterministic tasks only.
 │   ├── sync_client_to_supabase.py  ← Syncs one client's markdown files → Supabase
 │   ├── import_all_clients.py       ← Bulk migration: all clients + ICPs + competitors → Supabase
+│   ├── export_to_docx.py           ← Converts a markdown file to a formatted .docx document
+│   ├── export_to_html.py           ← Converts a markdown file to a formatted HTML document
 │   └── legacy/                     ← Superseded scripts. Do not use — kept for reference only.
 │       ├── analyze_reviews.py
 │       ├── scrape_reviews.py
-│       └── build_icp_doc.py
+│       ├── build_icp_doc.py
+│       └── apply_migration_009.py  ← One-time migration (already applied)
+│
+├── rework-ops-onboarding.html  ← Standalone onboarding guide for new ops team members. Open in browser.
 │
 ├── skills/                     ← YOUR custom Claude Code skills. Each in its own folder.
 │   └── skill-creator/          ← Anthropic's skill builder meta-skill
 │       └── SKILL.md
 │
 ├── .claude/                    ← Auto-managed by Claude Code. NEVER edit manually.
-│   └── skills/                 ← Symlinks to installed Firecrawl skills (8 total)
+│   └── skills/                 ← Installed skills (8 Firecrawl + frontend-design)
 │
 ├── .agents/                    ← Auto-managed by skill installers. NEVER edit manually.
 │   └── skills/                 ← Actual Firecrawl skill source files (8 total)
@@ -143,10 +156,13 @@ Do not create or overwrite workflows without asking unless explicitly told to. T
 Workflows have a required execution order. Never skip a prerequisite:
 ```
 onboard_client → build_icp → generate_ads
+                           → generate_video_scripts
                            → seo_audit
                            → generate_report
 ```
 Always check that `icp.md` exists and is complete before running any generation workflow. If it doesn't exist, run `build_icp.md` first.
+
+Note: `build_icp_platform.md` is called internally by the Platform UI — it is NOT a Claude Code agent workflow. Never invoke it manually.
 
 **8. Push to GitHub after every meaningful change**
 After completing any task that modifies files — workflows, tools, platform code, client data, CLAUDE.md — commit and push to GitHub before ending the session.
@@ -193,7 +209,9 @@ skills/              ← YOUR folder. Build custom skills here.
 .agents/skills/      ← Source files. Auto-managed. Where skill installers put files.
 ```
 
-When you see a skill in `.claude/skills/`, it is a symlink to the real file in `.agents/skills/`. This is correct. Both folders are gitignored and auto-managed.
+When you see a Firecrawl skill in `.claude/skills/`, it is a symlink to the real file in `.agents/skills/`. This is correct. Both folders are gitignored and auto-managed.
+
+Exception: `frontend-design` lives directly in `.claude/skills/frontend-design/` and has no counterpart in `.agents/skills/`. It was manually installed, not via the Firecrawl CLI. If you ever wipe `.claude/skills/`, you'll need to reinstall `frontend-design` separately.
 
 ---
 

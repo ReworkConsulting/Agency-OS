@@ -39,9 +39,9 @@ Use the table below to find the correct workflow. Match on intent, not exact wor
 | Set up a new client in the system | `workflows/onboard_client.md` | ✅ Built | — |
 | Build the ICP research document — brand voice, ideal customer profile, offer extraction | `workflows/build_icp.md` | ✅ Built | Client onboarded |
 | Write Facebook ad copy, hooks, headlines, primary text, CTAs, image prompts | `workflows/generate_ads.md` | ✅ Built | ICP complete |
-| Run an SEO audit, find keywords, benchmark competitors for search | `workflows/seo_audit.md` | ✅ Built | ICP complete |
-| Generate a client monthly performance report | `workflows/generate_report.md` | ✅ Built | Client onboarded |
-| Write a video script for a Facebook ad or VSL | `workflows/write_video_script.md` | 🔴 Not yet built | ICP complete |
+| Write a video script for a Facebook or Instagram video ad (B2C or B2B) | `workflows/generate_video_scripts.md` | ✅ Built | ICP complete |
+| Run an SEO audit, find keywords, benchmark competitors for search | `workflows/seo_audit.md` | ✅ Built (Platform UI coming) | ICP complete |
+| Generate a client monthly performance report | `workflows/generate_report.md` | ✅ Built (Platform UI coming) | Client onboarded |
 | Research a competitor — positioning, ads, reviews, strategy | `workflows/competitor_research.md` | 🔴 Not yet built | Client onboarded |
 | Scrape a website or pull data from a URL | `workflows/scrape_website.md` | 🔴 Not yet built | — |
 | Write content — blog post, email, SMS, social | `workflows/content_writer.md` | 🔴 Not yet built | ICP complete |
@@ -49,11 +49,10 @@ Use the table below to find the correct workflow. Match on intent, not exact wor
 **Workflow dependency order:**
 ```
 onboard_client → build_icp → generate_ads
+                           → generate_video_scripts
                            → seo_audit
-                           → write_video_script
-                           → content_writer
-                           ↓
-                       generate_report
+                           → generate_report
+                           → content_writer (not yet built)
 ```
 
 Never run a downstream workflow if its prerequisite hasn't been completed for this client. If the ICP doesn't exist yet, route to `build_icp.md` first.
