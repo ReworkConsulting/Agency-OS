@@ -4,16 +4,15 @@ export const seoAuditTool: ToolDefinition = {
   id: 'seo_audit',
   label: 'SEO Audit',
   description:
-    'Analyzes website SEO, identifies keyword opportunities, and benchmarks against competitors.',
+    'Full local SEO audit: technical signals, on-page analysis, keyword research with clusters, competitor benchmarking, and Local Pack status. Required before running any other SEO module.',
   workflow_file: 'workflows/seo_audit.md',
   output_type: 'seo_audit',
-  status: 'coming_soon',
-  context_needs: ['overview', 'services', 'competitors'],
+  status: 'active',
+  context_needs: ['overview', 'services', 'competitors', 'icp'],
   saves_to: 'workflow_outputs',
-  // ICP must exist so the audit understands who the target audience is.
   prerequisites: ['build_icp'],
   model: 'claude-sonnet-4-6',
-  max_tokens: 12000,
+  max_tokens: 16000,
   required_inputs: [
     {
       key: 'target_service',
@@ -30,5 +29,38 @@ export const seoAuditTool: ToolDefinition = {
       placeholder: 'e.g. Denver, CO',
     },
   ],
-  optional_inputs: [],
+  optional_inputs: [
+    {
+      key: 'website_url',
+      label: 'Client Website URL',
+      type: 'url',
+      required: false,
+      placeholder: 'https://example.com',
+      prefill_from: 'website_url',
+    },
+    {
+      key: 'gbp_url',
+      label: 'Google Business Profile URL',
+      type: 'url',
+      required: false,
+      placeholder: 'https://g.co/kgs/...',
+      prefill_from: 'gbp_url',
+    },
+    {
+      key: 'audit_scope',
+      label: 'Audit Scope',
+      type: 'select',
+      required: false,
+      options: ['full', 'technical_only', 'keywords_only', 'competitors_only'],
+      default_value: 'full',
+    },
+    {
+      key: 'competitor_count',
+      label: 'Competitors to Analyze',
+      type: 'select',
+      required: false,
+      options: ['2', '3', '5'],
+      default_value: '3',
+    },
+  ],
 }

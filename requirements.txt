@@ -12,3 +12,9 @@ python-dotenv
 
 # HTML parsing (used by legacy tools in tools/legacy/)
 beautifulsoup4
+
+# Google API — used by tools/fetch_gsc_data.py and tools/fetch_gbp_data.py
+# Requires GOOGLE_SERVICE_ACCOUNT_JSON set in .env
+google-auth
+google-auth-httplib2
+google-api-python-client

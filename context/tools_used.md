@@ -120,6 +120,76 @@ Every tool in this stack has a specific job. Nothing is redundant. When building
 
 ---
 
+---
+
+## Google Search Console API
+
+**What it is:** Google's Search Analytics API — provides real keyword ranking data (positions, impressions, clicks, CTR) directly from Google.
+
+**What we use it for:**
+- SEO audit keyword ranking status (replaces firecrawl-search proxy)
+- Surfacing crawl errors, 404s, and index coverage issues
+
+**Setup (per client):**
+1. Create a service account in [Google Cloud Console](https://console.cloud.google.com) → IAM & Admin → Service Accounts
+2. Enable the **Search Console API** on the project
+3. Download the service account JSON key
+4. Add the service account email as a **Restricted** user on the client's GSC property
+5. Set `GOOGLE_SERVICE_ACCOUNT_JSON=path/to/key.json` in `.env`
+6. Run: `python tools/fetch_gsc_data.py --client <slug> --property <gsc-url>`
+
+**Output:** `clients/{slug}/gsc_data.md` — read automatically by `workflows/seo_audit.md` Phase 2.0.
+
+**Cost:** Free (part of Google Cloud — service account has no usage fees).
+
+---
+
+## Google Business Profile API
+
+**What it is:** The Business Profile Management API — provides structured GBP data (categories, services, description) directly from Google.
+
+**What we use it for:**
+- GBP audit (more accurate than scraping via firecrawl-browser)
+- Pre-loading category, service, and description data before the GBP optimization workflow
+
+**Setup (per client):**
+1. Use the same service account as GSC, or create a new one
+2. Enable the **Business Profile Management API** on the Google Cloud project
+3. Add the service account to the client's GBP via the API or GBP Manager dashboard
+4. Find the account ID and location ID (run `python tools/fetch_gbp_data.py --client <slug> --list-accounts`)
+5. Run: `python tools/fetch_gbp_data.py --client <slug> --account-id <id> --location-id <id>`
+
+**Output:** `clients/{slug}/gbp_data.md` — read automatically by `workflows/seo_gbp.md` Phase 1.
+
+**Note:** Review count, photo count, and post recency require manual verification in GBP Manager — the Business Profile Performance API has limited service account access for those fields.
+
+**Cost:** Free (Google API, no per-call fee for basic data).
+
+---
+
+## DataForSEO (Opt-in)
+
+**What it is:** SERP data API — provides real keyword search volumes, competitor rank positions, and SERP feature detection.
+
+**What we use it for:**
+- Real search volume data for keyword clustering tables (Phase 2.5 of SEO audit)
+- Competitor actual SERP positions (vs. proxy search)
+
+**Setup:**
+1. Register at [dataforseo.com](https://dataforseo.com) (free trial available)
+2. Add to `.env`:
+   ```
+   DATAFORSEO_API_LOGIN=your_login
+   DATAFORSEO_API_KEY=your_api_key
+   ```
+3. Run: `python tools/keyword_research.py --client <slug> --keywords "kw1,kw2,kw3" --location "City, State"`
+
+**Output:** `clients/{slug}/keyword_data.md` — read automatically by `workflows/seo_audit.md` Phase 2.5.
+
+**Cost:** ~$0.001 per SERP query. A full 30-keyword audit = ~$0.03. 10 clients × 4 audits/month ≈ $1.20/month.
+
+---
+
 ## Tool Decision Guide
 
 When building a new workflow or automation, use this to decide which tool handles what:
