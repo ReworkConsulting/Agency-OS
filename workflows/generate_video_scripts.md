@@ -2,7 +2,19 @@
 
 ## Objective
 
-Produce short, high-converting copy for Facebook and Instagram ads. Output type determines the format — video scripts, long-form ad copy, or headline variations. Every output must sound like a real human — not AI copy. Every output must be grounded in the client's ICP, brand voice, and specific offer.
+Produce short, high-converting video ad scripts, ad copy, and headline variations for Facebook and Instagram. Every output is grounded in the client's ICP data and processed through three quality layers: `messaging-mastery` (psychology), `direct-response-ad-scripting` (structure and format), and `anti-ai-writing-rules` (final quality gate). Output must sound like a real human wrote it — never AI copy.
+
+---
+
+## SKILL CALLS IN THIS WORKFLOW
+
+```
+Phase 2: messaging-mastery       — conditions, amplifiers, audience segment, sophistication, decision-maker type
+Phase 3: direct-response-ad-scripting  — hook type selection, ad format selection
+Phase 5: anti-ai-writing-rules   — MANDATORY quality gate — never skip
+```
+
+---
 
 ## Required Inputs
 
@@ -13,6 +25,7 @@ Produce short, high-converting copy for Facebook and Instagram ads. Output type 
 - `script_style` — `UGC` or `Voice Over`
 - `output_type` — `videos` | `ad_copy` | `headlines`
 - `script_count` — `1` | `3` | `5`
+- `price_point` — The offer price or price range (e.g. "$0 free audit", "$2,500/month", "$8,500 system"). Drives qualifying friction level.
 
 ## Optional Inputs
 
@@ -20,6 +33,29 @@ Produce short, high-converting copy for Facebook and Instagram ads. Output type 
 - `hook_angle` — A specific emotional angle or insight to open with
 - `notes` — Additional context: seasonal timing, objection to address, etc.
 - `include_broll_notes` — If true, add `[B-ROLL: description]` cues after each section (Videos output only)
+- `audience_segment` — Override: `in-market` | `needs-convinced`. If blank, Phase 2 determines from ICP.
+- `decision_maker_type` — Override: `circle` | `triangle` | `square`. Defaults to Circle.
+
+---
+
+## INPUT → BEHAVIOR MAPPING
+
+| Input | Role | Effect on Generation |
+|---|---|---|
+| `target_service` | Offer mechanism | Drives angle selection; the specific service must appear in the script with a real number or detail from ICP |
+| `audience_type` | B2C vs B2B | Loads correct reference examples; determines which ICP buyer profile to read (Profile 2) |
+| `script_goal` | Conversion intent | Lead Gen = urgency/consequence. Retargeting = cost of inaction. Awareness = fact/contrast. Trust = earned proof |
+| `script_length` | Output ceiling | Hard word count limit (see ceilings below). Controls pacing: 15s = 2 moves, 30s = 4 moves, 60s = 6 moves, 90s = 7 moves |
+| `script_style` | Delivery method | UGC = first person, conversational, fragments, personal energy. VO = second/third person, cinematic, editorial |
+| `output_type` | Format | Videos = HOOK + BODY + CTA. Ad Copy = long-form primary text. Headlines = 8–12 single-line variations |
+| `script_count` | Volume | Number of distinct angles to generate. One angle per script. No two scripts may share an emotional register |
+| `price_point` | Qualifying friction | Under $500 = no friction. $500–$5k = light qualifying. $5k+ = intentional qualifying language woven into the script |
+| `specific_offer` | Offer override | Replaces ICP Profile 3 offer. Must appear as a specific number in at least one script |
+| `hook_angle` | Angle seed | Biases Phase 3 angle selection toward this frame. At least one script must execute this angle if provided |
+| `notes` | Run context | Seasonal, objection, or constraint — injected into Phase 3 angle evaluation |
+| `audience_segment` | Segment override | Bypasses Phase 2 determination if provided |
+| `decision_maker_type` | Register override | Sets Circle/Triangle/Square targeting. Defaults to Circle |
+| `include_broll_notes` | Output detail | Adds [B-ROLL: description] cues per section in Videos output only |
 
 ---
 
@@ -70,63 +106,7 @@ Count every spoken word before outputting a script. If you exceed the ceiling, c
 
 ---
 
-## ANTI-SLOP RULES — READ BEFORE WRITING ANYTHING
-
-These are hard constraints. Violations require a rewrite of the containing sentence.
-
-### Banned Phrases — Tier 1 (Corporate Filler — Zero Tolerance)
-
-`tailored solutions`, `comprehensive`, `seamless experience`, `world-class`, `innovative`, `cutting-edge`, `leveraging`, `delve into`, `harness the power`, `game-changer`, `paradigm shift`, `in today's fast-paced world`, `in today's world`, `look no further`, `your one-stop shop`, `state-of-the-art`, `best-in-class`, `holistic approach`, `synergy`, `robust`, `scalable`, `moving forward`, `at the end of the day`, `take it to the next level`
-
-### Banned Phrases — Tier 2 (Weak Ad Copy)
-
-`Don't miss out`, `Limited time offer`, `Act now`, `Don't wait`, `We've got you covered`, `Your dream [anything]`, `We pride ourselves on`, `With years of experience`, `Quality you can trust`, `you don't want to miss this`, `if X then Y` (as an opening structure), `no fluff`
-
-### Banned Phrases — Tier 3 (AI Writing Tells — Hard Disqualifiers)
-
-`Imagine a world where`, `Picture this:`, `In conclusion`, `First and foremost`, `It's important to note that`, `It goes without saying`, `Needless to say`, `As a matter of fact`, `When it comes to`, `The fact of the matter is`, `That being said`, `With that in mind`, `Having said that`, `Not only X, but also Y` (as a sentence structure), opening any sentence with `Certainly` or `Absolutely`
-
-### Structural Rules (Violations Require Rewrite)
-
-**S1 — Sentence Length:** No spoken sentence may exceed 18 words. Fragments are preferred. Split anything over 18 words.
-
-**S2 — Active Voice Only:** Every sentence must use active voice. No passive constructions.
-
-**S3 — Present Tense Default:** "Most homeowners are paying too much" beats "Most homeowners have been paying too much."
-
-**S4 — No Pointless Qualifiers:** Cut `very`, `really`, `quite`, `somewhat`, `basically`, `essentially` unless they do specific rhetorical work.
-
-**S5 — Specificity Over Category:** Not "heating and cooling system" — "your AC unit." Not "financial benefits" — "$8,500 back."
-
-**S6 — One Idea Per Sentence:** Each sentence carries one idea. Do not chain. Split everything else.
-
-**S7 — No Throat-Clearing:** The first word of the script is the hook. Never open with: `Hey there`, `Hi everyone`, `Hello`, `Hey guys`, `Welcome to`, `So today`, `Alright`, `OK so`.
-
-**S8 — The Read-Aloud Test:** Would a non-actor read this naturally on camera without stumbling? If no, rewrite.
-
----
-
 ## Execution Workflow
-
-### INPUT → BEHAVIOR MAPPING (Read Before Any Phase)
-
-Every input has an exact role. Nothing is a suggestion. Confirm each is bound before proceeding.
-
-| Input | Role | Effect on Generation |
-|-------|------|---------------------|
-| `target_service` | Offer mechanism | Drives angle selection; the specific service must appear in the script with a real number or detail from ICP |
-| `audience_type` | B2C vs B2B | Loads correct winning scripts reference file; determines which ICP buyer profile to read (Profile 2) |
-| `script_goal` | Conversion intent | Lead Gen = urgency/consequence. Retargeting = cost of inaction. Awareness = fact/contrast. Trust = earned proof |
-| `script_length` | Output ceiling | Hard word count limit (see ceilings above). Controls pacing: 15s = 2 moves, 30s = 4 moves, 60s = 6 moves, 90s = 7 moves |
-| `script_style` | Delivery method | UGC = first person, conversational, fragments, personal energy. VO = second/third person, cinematic, editorial |
-| `output_type` | Format | Videos = HOOK + BODY + CTA. Ad Copy = long-form primary text (200–400 words). Headlines = 8–12 single-line variations |
-| `script_count` | Volume | Number of distinct angles to define in Phase 1.5. One angle per script. No two scripts may share an emotional register |
-| `specific_offer` | Offer override | Replaces ICP Profile 3 offer. If provided, must appear as a specific number in at least one script |
-| `hook_angle` | Angle seed | Biases Phase 1.5 angle selection toward this frame. If provided, at least one script must execute this angle |
-| `notes` | Run context | Seasonal, objection, constraint — injected into Phase 1.5 angle evaluation |
-| `include_broll_notes` | Output detail | Adds [B-ROLL: description] cues per section in Videos output only |
-
----
 
 ### PHASE 1 — Context Absorption (Silent — Do NOT output anything)
 
@@ -147,63 +127,188 @@ Extract their internal monologue. The output will interrupt it.
 What numbers exist in the ICP data? What is the risk-reversal? If `specific_offer` is provided, use that instead.
 
 **Step 1.4 — Study Reference Examples**
-If winning scripts or reference examples were provided: study hook structure, pacing, transitions, CTA psychology.
-Mirror the structural energy. Do not copy the words.
+Load up to 3 examples from `examples/scripts/`:
+1. Match by `audience_type` (B2C or B2B)
+2. Match by client industry (from client overview or ICP)
+3. Match by `script_style` and `script_length`
+4. Fallback to `general-home-services/` if no industry match
+5. Load up to 1 approved script from `clients/{slug}/scripts/approved/` if available
+
+Study hook structure, pacing, transitions, CTA psychology. Mirror the structural energy — do not copy the words.
+
+**Pre-Flight ICP Check:** If `clients/{client-name}/icp.md` does not exist or Profile 2 sections are marked LOW confidence, flag it before proceeding. A thin ICP produces weak conditions analysis and weaker scripts.
+
+**Step 1.5 — Extract Conditions-Relevant Data**
+Before leaving Phase 1, extract from the ICP:
+- Price point (from `price_point` input or ICP Profile 3)
+- Evidence of audience sophistication — high-net-worth / business owners (rich-people triggers) or general consumers (general-public triggers)
+- Any CPO data (Circumstances, Problems, Outcomes) explicitly stated in ICP Profiles 2.3–2.9 and Profile 4
+
+This data feeds directly into Phase 2.
 
 ---
 
-### PHASE 1.5 — Angle Definition (Internal — No Output)
+### PHASE 2 — Messaging Psychology (Silent — Do NOT output anything)
 
-An angle is the strategic emotional frame. The hook executes the angle. Scripts generated without a defined angle produce generic output — the hook becomes the angle by accident, not by design.
+**Apply the `messaging-mastery` skill with the ICP data loaded.**
 
-For a run of N scripts, define N angles before writing a single word of copy.
+**Step 2.1 — Run messaging-mastery**
 
-**Step 1.5.1 — Generate candidate angles**
+Using the ICP data from Phase 1, the skill must identify:
 
-Use the following inputs to generate angles:
-- `script_goal` → determines the conversion mechanism (urgency, proof, consequence, contrast)
+1. **Conditions** — which of the 5 condition categories describe this buyer's current situation:
+   - Financial (cash-flow, debt, scaling constraints, revenue plateau)
+   - Time & Energy (bandwidth, burnout, delegation readiness)
+   - Emotional & Psychological (frustration level, confidence, urgency to change)
+   - Business & Market (growth stage, operational maturity, competitive pressure)
+   - Lifestyle & Personal (life event context, identity, what they're protecting)
+
+2. **Sophistication Level** — determine the register:
+   - Rich-people triggers: time is the resource, reputation risk, exclusivity, certainty, outcomes not escape, invite don't chase
+   - General-public triggers: sick of being stuck, tired of doing it alone, FOMO, price sensitivity, prove themselves, just want something that works
+
+3. **Lead Amplifiers** — select 2–3 from the 6 emotional categories that match the dominant conditions:
+   - Fear-Based (FOMO, losing it all, wrong move, regret)
+   - Frustration-Based (plateaued, others passing you, burned but not free)
+   - Desire-Based (recognition, freedom, control, leverage)
+   - Envy & Comparison (peers ahead, competitors winning with worse)
+   - Identity & Ego (built for bigger, refuse average, outgrown circle)
+   - Urgency & Loss (window closing, every day costs you, momentum slipping)
+
+4. **Audience Segment** — determine from ICP Profile 2 + `script_goal`:
+   - In-market (3–4%): already decided they need this category, comparing providers → lead with recognition not education, use Direct Claim or You Already Know hooks, tight proof-dense scripts
+   - Needs-convinced (~30%): want the outcome but not committed to the method → more education, future-pain selling, longer scripts preferred for 60s-90s formats
+   - Use the `audience_segment` input to override if provided
+
+5. **Decision-Maker Type** — use `decision_maker_type` input or default to Circle:
+   - Circle (executives/founders): think big picture, vision, legacy, freedom — care about WHERE not HOW
+   - Triangle (management): big picture broken into steps, execution
+   - Square (employees): individual tasks, specific actions, details
+   Lead with Circle language. Squares will follow. Triangles figure out execution.
+
+**Step 2.2 — Lock Messaging Parameters (Internal)**
+
+Commit these parameters before moving to Phase 3. Every script generated must be consistent with them:
+
+```
+Primary condition: [category — specific description]
+Lead amplifiers: [2–3 names from the 6 categories]
+Audience segment: [in-market / needs-convinced]
+Sophistication register: [rich-people / general-public]
+Decision-maker type: [Circle / Triangle / Square]
+```
+
+**Flag:** If `audience_segment` resolves to needs-convinced AND `script_length` is 15s or 30s — note this tension in the STRATEGY_NOTE. Do not override the user's input. Execute as given and surface the tension.
+
+**Step 2.3 — Set Qualifying Friction**
+
+Based on `price_point`:
+- Under $500: no qualifying friction. Broad appeal. Maximize click volume.
+- $500–$5,000: light qualifying. ("If you're a homeowner in [area]...") Some self-selection.
+- $5,000+: intentional friction. Weave qualifying language naturally into the script body. The prospect must feel they qualify for the service — not that the service is available to anyone.
+
+---
+
+### PHASE 3 — Strategic Framing (Silent — Do NOT output anything)
+
+**Step 3.1 — Angle Generation**
+
+An angle is the strategic emotional frame. The hook executes the angle. Scripts generated without a defined angle produce generic output.
+
+For a run of N scripts, define N distinct angles before writing a single word of copy.
+
+Generate at least `script_count + 2` candidate angles using:
+- `script_goal` → conversion mechanism (urgency, proof, consequence, contrast)
 - `audience_type` → B2C: fear / savings / local urgency. B2B: ROI / differentiation / cost of status quo
-- `target_service` + `specific_offer` → provides the specific mechanism that makes the angle concrete
+- `target_service` + `specific_offer` → the specific mechanism that makes the angle concrete
 - `hook_angle` → if provided, bias at least one angle toward this frame
-- `notes` → seasonal, objection, or constraint that should shape the angle
-- ICP Profile 2 → the exact internal monologue to interrupt
+- `notes` → seasonal, objection, or constraint shaping the angle
+- ICP Profile 2 + the locked amplifiers from Phase 2 → the exact internal monologue to interrupt
 
 Each angle is one sentence. Format: **[Emotional frame] — [Specific trigger from ICP or offer data]**
 
 Examples:
 - "Financial consequence — homeowner paying $180/month more than neighbors because their unit is 14 years old"
 - "Social proof contrast — neighbor just replaced the same system for $400 out of pocket via the rebate"
-- "Risk realization — the failed inspection that costs $12,000 because they ignored a $300 fix"
-- "Authority credibility — the one thing every HVAC tech knows but clients never hear until it's too late"
+- "Identity/ego — business owner capable of more, stuck running ops instead of growing"
 
-Generate at least `script_count + 2` candidate angles.
+**Step 3.2 — Evaluate and Discard. Cut any angle that:**
 
-**Step 1.5.2 — Evaluate each angle. Discard if:**
+1. Is not specific — could apply to any company in this industry
+2. Misaligns with `script_goal` — a Trust Building run needs proof-based angles, not urgency
+3. Can't execute in the word count — a 6-move story won't fit in a 15s script
+4. Overlaps an already-selected angle — no two scripts may share the same emotional register
 
-1. **Not specific**: The angle could apply to any company in this industry. Generic = discard.
-2. **Wrong goal**: A Trust Building run needs proof-based angles, not urgency. Misaligned = discard.
-3. **Can't execute in word count**: A 6-move story won't fit in a 15s script. Unexecutable = discard.
-4. **Overlaps another angle already selected**: Two scripts with the same emotional register = wasted variation.
+**Step 3.3 — Hook Type Selection**
 
-**Step 1.5.3 — Assign one angle per script**
+Apply the `direct-response-ad-scripting` skill. For each candidate angle, identify which of the 7 named hook types best executes it:
+
+| Hook Type | Best For |
+|---|---|
+| You Already Know | In-market audiences who've already decided they need the category |
+| You're Doing This, But... | Piggyback on existing behavior, show a better path |
+| Circumstance | Life event or timing trigger (recently moved, storm damage, new season) |
+| Direct Claim | Lead with specific results — number, timeline, outcome |
+| Question | Open a loop the viewer wants closed |
+| Contrarian / Myth-Busting | Challenge a belief they hold that's costing them |
+| Social Proof | Client transformation story — specific person, specific result |
+
+**Selection rule:** In-market → bias to "You Already Know" and "Direct Claim." Needs-convinced → bias to "Question," "Contrarian," and "Social Proof."
+
+**Step 3.4 — Ad Format Selection**
+
+Apply the `direct-response-ad-scripting` skill. Select the ad format for each script:
+
+| Format | Default Use |
+|---|---|
+| Talking Head + B-Roll | Default for all talking-head scripts |
+| Case Study Snapshot | Specific client story, before/after |
+| Demo / Screencast | Product or service in action |
+| Objection-First | Address biggest objection head-on in the hook |
+| Q&A Format | Authority-building, credibility |
+| Two-Person Interview | Accessibility, relatability |
+| Skit / Scenario | Before/after emotional arc |
+
+Default to Talking Head + B-Roll if no format can be determined from context. The format selection directly affects DIRECTOR_NOTE content and BROLL_NOTES style.
+
+**Step 3.5 — Assign One Angle Per Script + Internal Constraint Block**
 
 - `script_count = 1`: select the single strongest angle
-- `script_count = 3`: cover 3 different emotional registers (e.g. consequence + social proof + urgency)
+- `script_count = 3`: cover 3 different emotional registers (consequence + social proof + urgency, etc.)
 - `script_count = 5`: 5 angles — no two may share the same emotional frame
 
-Each assigned angle becomes the governing constraint for that script through Phases 2–output.
+For each script, lock an internal constraint block before writing begins:
+
+```
+Script N:
+- Angle: [one-sentence emotional frame — specific trigger]
+- Hook type: [named from the 7]
+- Ad format: [named from the 7]
+- Primary amplifier: [category + name]
+- Audience segment: [in-market / needs-convinced]
+- Qualifying friction: [none / light / intentional]
+- Sophistication: [rich-people / general-public]
+- Decision-maker type: [Circle / Triangle / Square]
+```
+
+Every sentence of the script must be consistent with this block.
 
 ---
 
-### PHASE 2 — Hook Construction (Internal — Do Not Output)
+### PHASE 4 — Script Writing
 
-Hooks are built FROM the assigned angle, not invented independently. The angle is the strategy. The hook is the opening line that activates it.
+**Step 4.1 — Build the Hook**
 
-Generate 3 candidate hooks per script. For each:
+Build 3 candidate hooks per script using the assigned angle and hook type from Phase 3. For each candidate:
 1. Does it execute the assigned angle? If not, discard.
-2. Run the Slop Test — any banned phrase?
-3. Run the Specificity Test — could you put a competitor's name on this? If yes, rewrite.
-3. Say it aloud — does it interrupt thought?
+2. Does it execute the selected hook type? If not, discard.
+3. Specificity test — could you put a competitor's name on this hook? If yes, rewrite.
+4. Read it aloud — does it interrupt thought?
+
+**Hook validation gate — all three must be yes before using a hook:**
+- Does the viewer identify themselves in this hook?
+- Does it open a loop they want closed?
+- Does it work as a standalone sentence without context?
 
 Pick the strongest. Do not output the others.
 
@@ -212,6 +317,55 @@ Pick the strongest. Do not output the others.
 - **Awareness:** Open with a number, fact, or contrast that surprises.
 - **Retargeting:** Reference the decision they haven't made yet.
 - **Trust Building:** Start with the outcome, then earn it.
+
+**Step 4.2 — Write the Body**
+
+Body density depends on audience segment:
+- **In-market:** Tight body. Skip category education. Proof points, specific results, specific timelines. One core idea.
+- **Needs-convinced:** Longer body. Earn the case before presenting solution. Future-pain selling (make them feel the inevitable consequence of inaction — sensory, specific, emotional). More social proof to bridge desire to method commitment.
+
+**"Written TO, not ABOUT" test:** Every body sentence must be directed AT the viewer. Is this sentence being said TO them? Or is it describing a hypothetical version of them? If "about," rewrite.
+
+**Circle/Triangle/Square register:** Lead with vision and outcome (Circle language). Specifics and process details are supporting evidence — not the hook. The check-signer cares about WHERE, not HOW.
+
+**No Cherry-Picking rule:** Hit all relevant CPO points from ICP Profile 2. Each point can be a half-sentence woven naturally. Do not filter — let the prospect self-select which ones land.
+
+**Conversational transitions:** When moving from problem to solution, use natural connectors — "So here's the deal," "Here's the thing," "And look." Not formal structured connectors.
+
+**Qualifying friction:** For $5k+ price points, weave qualifying language naturally into the body. Not a disclaimer — a conversational qualifier that makes the right person lean in and the wrong person opt out.
+
+**Sentence rules:**
+- No spoken sentence may exceed 18 words. Fragments are preferred. Split anything over 18 words.
+- Every sentence uses active voice.
+- Present tense default.
+- Cut `very`, `really`, `quite`, `somewhat`, `basically`, `essentially` unless doing specific rhetorical work.
+- Not "heating and cooling system" — "your AC unit." Not "financial benefits" — "$8,500 back."
+- One idea per sentence.
+- First word of the script is the hook. Never open with: Hey there, Hi everyone, Hello, Hey guys, Welcome to, So today, Alright, OK so.
+
+**Step 4.3 — Write the CTA**
+
+- 3–7 words. Names a specific action. Reduces friction.
+- Direct and confident. Not a hint — a direction.
+- Must match the funnel destination exactly. The ad promise and the landing page promise must be identical.
+
+**Step 4.4 — Generate Hook Variations (Mandatory — Videos output only)**
+
+After completing the primary script, generate 3–5 hook variations for the same body and CTA. Each variation uses a different hook type from the 7. This is not optional.
+
+---
+
+### PHASE 5 — Anti-AI Quality Gate (MANDATORY — Never Skip)
+
+**Apply the `anti-ai-writing-rules` skill to every script before output.**
+
+The skill enforces:
+1. 52-word banned list check (corporate language, AI writing tells)
+2. 9 structural pattern checks — including em dash ban, negative parallelism, staccato three-part structures, trailing -ing phrases, "serves as / stands as / marks a / represents a," vague authority, puffery, "this is important" overstatement
+3. Mouth test — every line read aloud. Does it feel natural? Would a real person say this? Any stumble points?
+4. 13-point final checklist
+
+No script is delivered that has not cleared this gate. If the gate catches violations, rewrite the offending lines and re-run the checklist before outputting.
 
 ---
 
@@ -248,6 +402,21 @@ BROLL_NOTES:
 DIRECTOR_NOTE:
 [1–2 sentences. Delivery instruction — pace, energy, pause placement. UGC: emotional cues for the speaker. VO: narrator pacing and tone.]
 ---SCRIPT_END---
+
+HOOK_VARIATIONS:
+VARIATION 1 — [Hook type name]:
+[Hook text]
+[One sentence: why this takes a different angle than the primary hook]
+
+VARIATION 2 — [Hook type name]:
+[Hook text]
+[One sentence: why this takes a different angle than the primary hook]
+
+VARIATION 3 — [Hook type name]:
+[Hook text]
+[One sentence: why this takes a different angle than the primary hook]
+
+[Add VARIATION 4 and 5 if strong additional angles exist]
 ```
 
 ---
@@ -279,7 +448,7 @@ CTA:
 ---COPY_END---
 ```
 
-**Ad Copy Anti-Rules:**
+**Ad Copy Rules:**
 - Do not write in the structure of a video script — no HOOK/BODY/CTA sections
 - The first sentence must stop the scroll — question, bold claim, or specific number
 - Every paragraph earns the next — if a paragraph can be cut, cut it
@@ -323,7 +492,7 @@ HEADLINES:
 
 ### Strategy Note (All Output Types)
 
-After all output blocks, document the angle decisions made in Phase 1.5:
+After all output blocks:
 
 ```
 ---STRATEGY_NOTE---
@@ -332,7 +501,9 @@ Script 1: [Angle name] — [One-sentence description of the emotional frame]
 Script 2: [Angle name] — [One-sentence description of the emotional frame]
 Script N: [Angle name] — [One-sentence description of the emotional frame]
 
-RATIONALE: [2–3 sentences. Why these angles were selected given the goal and ICP. What makes each script non-interchangeable — each must target a different emotional register than the others.]
+RATIONALE: [2–3 sentences. Why these angles were selected given the goal and ICP. Which amplifiers were chosen and why. Which audience segment this targets and how that shaped the script density and length. What qualifying friction level was applied. What makes each script non-interchangeable — each must target a different emotional register than the others.]
+
+TENSIONS FLAGGED: [Any audience segment / script length conflicts, thin ICP sections, or other issues worth noting. Leave blank if none.]
 ---STRATEGY_NOTE_END---
 ```
 
@@ -340,14 +511,11 @@ RATIONALE: [2–3 sentences. Why these angles were selected given the goal and I
 
 ---
 
-## Quality Standard
+## Self-Learning Loop
 
-Every output must pass:
+When a script is approved by a client or performs well in the platform:
+1. Save it to `clients/{slug}/scripts/approved/` with the standard frontmatter format
+2. If it performs exceptionally, promote it to `examples/scripts/` organized by audience type and industry
+3. Future runs for this client and similar industries will automatically load it as a reference example
 
-1. Real person could read or use it — no AI tells
-2. Wrong to put a competitor's name on it — it's specific to this client
-3. Contains at least one number grounded in the ICP data
-4. Zero banned phrases
-5. Every sentence uses active voice
-6. Nothing can be removed without losing something important
-7. The style (UGC vs Voice Over) is consistent throughout — no drift
+See `examples/scripts/README.md` for file format and naming conventions.

@@ -39,8 +39,12 @@ Use the table below to find the correct workflow. Match on intent, not exact wor
 | Set up a new client in the system | `workflows/onboard_client.md` | ✅ Built | — |
 | Build the ICP research document — brand voice, ideal customer profile, offer extraction | `workflows/build_icp.md` | ✅ Built | Client onboarded |
 | Write Facebook ad copy, hooks, headlines, primary text, CTAs, image prompts | `workflows/generate_ads.md` | ✅ Built | ICP complete |
-| Write a video script for a Facebook or Instagram video ad (B2C or B2B) | `workflows/generate_video_scripts.md` | ✅ Built | ICP complete |
-| Run an SEO audit, find keywords, benchmark competitors for search | `workflows/seo_audit.md` | ✅ Built (Platform UI coming) | ICP complete |
+| Write a video script for a Facebook or Instagram video ad (B2C or B2B) — includes hook variations, audience segmentation (in-market/needs-convinced), conditions-based messaging, and anti-AI quality gate | `workflows/generate_video_scripts.md` | ✅ Built | ICP complete |
+| Run an SEO audit — technical signals, on-page, keyword clusters, competitor benchmarking | `workflows/seo_audit.md` | ✅ Built | ICP complete |
+| Generate a site architecture — URL map, page hierarchy, internal linking plan | `workflows/seo_site_structure.md` | ✅ Built (Platform UI coming) | SEO Audit complete |
+| Generate content briefs for service pages, location pages, or blog posts | `workflows/seo_content_engine.md` | ✅ Built (Platform UI coming) | SEO Audit complete |
+| Audit and optimize Google Business Profile, generate post scripts and review templates | `workflows/seo_gbp.md` | ✅ Built (Platform UI coming) | SEO Audit complete |
+| Synthesize all SEO outputs into a unified game plan with 60-day schedule and VA tasks | `workflows/seo_game_plan.md` | ✅ Built (Platform UI coming) | SEO Audit complete |
 | Generate a client monthly performance report | `workflows/generate_report.md` | ✅ Built (Platform UI coming) | Client onboarded |
 | Research a competitor — positioning, ads, reviews, strategy | `workflows/competitor_research.md` | 🔴 Not yet built | Client onboarded |
 | Scrape a website or pull data from a URL | `workflows/scrape_website.md` | 🔴 Not yet built | — |
@@ -50,12 +54,16 @@ Use the table below to find the correct workflow. Match on intent, not exact wor
 ```
 onboard_client → build_icp → generate_ads
                            → generate_video_scripts
-                           → seo_audit
+                           → seo_audit → seo_site_structure → seo_game_plan
+                                       → seo_content_engine → seo_game_plan
+                                       → seo_gbp            → seo_game_plan
                            → generate_report
                            → content_writer (not yet built)
 ```
 
 Never run a downstream workflow if its prerequisite hasn't been completed for this client. If the ICP doesn't exist yet, route to `build_icp.md` first.
+
+**If the user says "run the full SEO system":** Confirm the run order before starting: SEO Audit → Site Structure → Content Engine + GBP (can run in parallel) → Game Plan last (it reads all prior outputs). Always confirm `target_service` and `target_location` before beginning.
 
 **If a workflow is marked 🔴:** Tell the user it hasn't been built yet. Describe what it would do and ask if they want to build it now or proceed another way.
 

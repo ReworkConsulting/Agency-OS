@@ -71,7 +71,11 @@ Agency OS/
 │   ├── build_icp_platform.md   ← ICP synthesis for the Platform UI — PLATFORM-INTERNAL. Do not run manually.
 │   ├── generate_ads.md         ← Facebook ad copy generation (requires ICP first)
 │   ├── generate_video_scripts.md ← Video ad script generation (requires ICP first)
-│   ├── seo_audit.md            ← SEO audit and keyword gap analysis (requires ICP first)
+│   ├── seo_audit.md            ← SEO audit: technical, on-page, keyword clusters, competitor benchmarking (requires ICP first)
+│   ├── seo_site_structure.md   ← Site architecture: URL map, page hierarchy, internal linking plan (requires seo_audit)
+│   ├── seo_content_engine.md   ← Content briefs: service pages, location pages, blog posts (requires seo_audit)
+│   ├── seo_gbp.md              ← GBP audit, optimization copy, post scripts, review templates (requires seo_audit)
+│   ├── seo_game_plan.md        ← SEO synthesis: 80/20 fixes, 60-day plan, VA task breakdown (requires seo_audit)
 │   ├── generate_report.md      ← Monthly performance report generation
 │   └── design_platform.md      ← Platform UI design SOP — ONLY for platform UI work, not client deliverables
 │
@@ -126,8 +130,13 @@ All web scraping and research runs through Firecrawl. Never write a Python scrap
 | `firecrawl` | General-purpose — use when unsure which sub-skill fits |
 | `ui-ux-pro-max` | **Design intelligence for platform UI.** Searchable database of 67 UI styles, 161 color palettes, 57 font pairings, 99 UX guidelines. Use when building or redesigning platform pages/components. Generates `design-system/MASTER.md`. |
 | `frontend-design` | **Creative direction for UI.** Bold aesthetic choices, layout composition, visual polish. Use after design system parameters are set, or for one-off creative outputs (marketing, landing pages). |
+| `messaging-mastery` | **Psychology layer for video scripting.** Identifies buyer conditions, emotional amplifiers, audience segment (in-market vs. needs-convinced), sophistication register, and decision-maker type from ICP data. Required in Phase 2 of `generate_video_scripts`. |
+| `direct-response-ad-scripting` | **Structure layer for video scripting.** Hook type selection (7 types), ad format selection (7 formats), qualifying friction, and Hook>Body>CTA construction. Required in Phase 3 of `generate_video_scripts`. |
+| `anti-ai-writing-rules` | **Quality gate for all scripts.** 52-word banned list, 9 structural pattern checks (em dash ban, staccato, negative parallelism, etc.), mouth test, and 13-point final checklist. Mandatory in Phase 5 of `generate_video_scripts` — never skip. |
 
 **Design skill usage rule:** `ui-ux-pro-max` provides the rules and system; `frontend-design` executes with creative quality. For platform UI work, always follow `workflows/design_platform.md`. Neither skill should be invoked for client research or content generation tasks.
+
+**Video scripting skill usage rule:** `messaging-mastery`, `direct-response-ad-scripting`, and `anti-ai-writing-rules` work as a three-layer pipeline for video script generation. They run in sequence — psychology → structure → quality gate. All three must complete before output is delivered. Do not invoke these skills for SEO, ICP research, or static ad copy generation tasks.
 
 ---
 
@@ -161,12 +170,17 @@ For any scraping or web research: use the appropriate Firecrawl skill. Only fall
 **6. Keep workflows current**
 Do not create or overwrite workflows without asking unless explicitly told to. These are the operating instructions — they need to be preserved and intentional.
 
+**7a. Video scripting requires three skills in sequence**
+When running `generate_video_scripts.md`, the workflow calls three skills at specific phases: `messaging-mastery` (Phase 2 — psychology), `direct-response-ad-scripting` (Phase 3 — hook type and format selection), and `anti-ai-writing-rules` (Phase 5 — quality gate). All three must complete before output is delivered. The Phase 5 quality gate is mandatory — no script ships without it.
+
 **7. Respect workflow dependency order**
 Workflows have a required execution order. Never skip a prerequisite:
 ```
 onboard_client → build_icp → generate_ads
                            → generate_video_scripts
-                           → seo_audit
+                           → seo_audit → seo_site_structure → seo_game_plan
+                                       → seo_content_engine → seo_game_plan
+                                       → seo_gbp            → seo_game_plan
                            → generate_report
 ```
 Always check that `icp.md` exists and is complete before running any generation workflow. If it doesn't exist, run `build_icp.md` first.
