@@ -173,6 +173,7 @@ export function AdCard({ ad, clientName, isLoading, onUnsave, onWinnerToggle }: 
             cta={ad.cta}
             clientName={clientName}
             visualStyle={(ad.visual_style as VisualStyle) ?? 'dark'}
+            backgroundImageUrl={ad.image_url ?? undefined}
             innerRef={templateRef}
           />
         </div>

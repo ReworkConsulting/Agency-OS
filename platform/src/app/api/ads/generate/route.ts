@@ -4,6 +4,7 @@ import { streamClaudeResponse } from '@/lib/claude/client'
 import { loadClientContext } from '@/lib/context-loader'
 import { generateAdsTool } from '@/lib/tool-registry/tools/generate-ads'
 import { getTool } from '@/lib/tool-registry'
+import { generateAdImagesBatch, type AdSize } from '@/lib/image-generator'
 import { loadWorkflowMarkdown } from '@/lib/workflow-runner/loader'
 
 export const runtime = 'nodejs'
@@ -275,14 +276,29 @@ export async function POST(request: NextRequest) {
           throw new Error('Claude did not produce parseable ad output. Check the workflow format.')
         }
 
+        // 8. Generate background photos via FAL AI
         enqueue({
           type: 'status',
-          stage: 'saving',
-          message: `Saving ${parsedAds.length} ad${parsedAds.length !== 1 ? 's' : ''}...`,
+          stage: 'images',
+          message: `Generating ${parsedAds.length} photo${parsedAds.length !== 1 ? 's' : ''}...`,
+          total: parsedAds.length,
         })
 
-        // 8. Persist ad_creatives rows — no image generation, template renders client-side
-        const insertRows = parsedAds.map((ad) => ({
+        const imagePrompts = parsedAds.map((ad) => ad.image_prompt).filter(Boolean)
+        const imageResults = await generateAdImagesBatch(imagePrompts, ad_size as AdSize)
+
+        const failedImages = imageResults.filter((r) => !r.url)
+        if (failedImages.length > 0) {
+          console.error('[FAL] Image generation failures:', failedImages.map((r) => r.error))
+          enqueue({
+            type: 'status',
+            stage: 'images',
+            message: `Note: ${failedImages.length} photo(s) failed — ads will show text-only`,
+          })
+        }
+
+        // 9. Persist ad_creatives rows
+        const insertRows = parsedAds.map((ad, i) => ({
           client_id: clientContext.client.id,
           workflow_run_id: runId ?? null,
           target_service,
@@ -295,8 +311,9 @@ export async function POST(request: NextRequest) {
           primary_text: ad.primary_text,
           headline: ad.headline,
           cta: ad.cta,
-          image_url: null,
-          image_status: 'template',
+          image_prompt: ad.image_prompt,
+          image_url: imageResults[i]?.url ?? null,
+          image_status: imageResults[i]?.url ? 'complete' : 'failed',
         }))
 
         const { data: creatives } = await supabase

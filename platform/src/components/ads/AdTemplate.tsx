@@ -2,7 +2,7 @@
 
 import React from 'react'
 
-export type VisualStyle = 'dark' | 'light' | 'brand' | 'gradient'
+export type VisualStyle = 'dark' | 'light' | 'gradient' | 'brand'
 
 export interface AdTemplateProps {
   headline: string
@@ -11,12 +11,13 @@ export interface AdTemplateProps {
   clientName?: string
   visualStyle?: VisualStyle
   brandColor?: string
+  /** AI-generated background photo URL — when set, photo is background with overlay */
+  backgroundImageUrl?: string
   /** Pass a ref to this element for html-to-image capture */
   innerRef?: React.RefObject<HTMLDivElement | null>
-  /** Scale factor for display (1 = full 1080px, 0.3 = 324px display) */
-  scale?: number
 }
 
+// Text-only styles (no background image)
 const STYLES: Record<VisualStyle, {
   bg: string
   headline: string
@@ -48,17 +49,17 @@ const STYLES: Record<VisualStyle, {
     accentLine: '#0c0c0c',
   },
   brand: {
-    bg: '#1a1a2e',           // overridden by brandColor prop
+    bg: '#1a1a2e',
     headline: '#ffffff',
     hook: 'rgba(255,255,255,0.75)',
     ctaBg: '#ffffff',
-    ctaText: '#1a1a2e',     // overridden by brandColor prop
+    ctaText: '#1a1a2e',
     client: 'rgba(255,255,255,0.45)',
     divider: 'rgba(255,255,255,0.12)',
     accentLine: '#ffffff',
   },
   gradient: {
-    bg: 'linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%)',
+    bg: '#0f0f0f',
     headline: '#ffffff',
     hook: '#b0b0b0',
     ctaBg: '#ffffff',
@@ -69,6 +70,17 @@ const STYLES: Record<VisualStyle, {
   },
 }
 
+// When a background photo is present, always use these overlay colors
+const PHOTO_COLORS = {
+  headline: '#ffffff',
+  hook: 'rgba(255,255,255,0.90)',
+  ctaBg: '#ffffff',
+  ctaText: '#0c0c0c',
+  client: 'rgba(255,255,255,0.60)',
+  divider: 'rgba(255,255,255,0.20)',
+  accentLine: '#ffffff',
+}
+
 export function AdTemplate({
   headline,
   hook,
@@ -76,46 +88,69 @@ export function AdTemplate({
   clientName,
   visualStyle = 'dark',
   brandColor,
+  backgroundImageUrl,
   innerRef,
-  scale = 1,
 }: AdTemplateProps) {
+  const hasPhoto = !!backgroundImageUrl
   const style = STYLES[visualStyle]
 
-  // Override brand colors when visual_style === 'brand' and brandColor provided
-  const bg = visualStyle === 'brand' && brandColor
-    ? brandColor
-    : visualStyle === 'gradient'
-    ? undefined // applied via backgroundImage
-    : style.bg
+  const colors = hasPhoto ? PHOTO_COLORS : style
+  const ctaTextColor = !hasPhoto && visualStyle === 'brand' && brandColor ? brandColor : colors.ctaText
+  const bg = !hasPhoto
+    ? (visualStyle === 'brand' && brandColor ? brandColor : style.bg)
+    : 'transparent'
 
-  const ctaTextColor = visualStyle === 'brand' && brandColor ? brandColor : style.ctaText
-
-  // Base size — the template is designed at 1080px, scale down for display
   const BASE = 1080
-  const SIZE = BASE * scale
-
-  // All sizes are relative to BASE so they scale correctly
-  const px = (n: number) => `${n * scale}px`
 
   return (
     <div
       ref={innerRef}
       style={{
-        width: `${SIZE}px`,
-        height: `${SIZE}px`,
-        background: visualStyle === 'gradient' ? undefined : bg,
-        backgroundImage: visualStyle === 'gradient' ? 'linear-gradient(135deg, #0f0f0f 0%, #1c1c1c 60%, #111111 100%)' : undefined,
+        width: `${BASE}px`,
+        height: `${BASE}px`,
+        background: bg,
+        backgroundImage: visualStyle === 'gradient' && !hasPhoto
+          ? 'linear-gradient(135deg, #0f0f0f 0%, #1c1c1c 60%, #111111 100%)'
+          : undefined,
         position: 'relative',
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
         boxSizing: 'border-box',
-        padding: px(88),
       }}
     >
-      {/* Subtle texture overlay for dark/gradient */}
-      {(visualStyle === 'dark' || visualStyle === 'gradient') && (
+      {/* Background photo */}
+      {hasPhoto && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={backgroundImageUrl}
+          alt=""
+          crossOrigin="anonymous"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            objectPosition: 'center',
+          }}
+        />
+      )}
+
+      {/* Gradient overlay — bottom-heavy for text readability */}
+      {hasPhoto && (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.55) 45%, rgba(0,0,0,0.12) 100%)',
+          }}
+        />
+      )}
+
+      {/* Subtle radial highlight for text-only dark/gradient styles */}
+      {!hasPhoto && (visualStyle === 'dark' || visualStyle === 'gradient') && (
         <div
           style={{
             position: 'absolute',
@@ -126,96 +161,104 @@ export function AdTemplate({
         />
       )}
 
-      {/* Accent line — top left */}
-      <div style={{
-        position: 'absolute',
-        top: px(88),
-        left: px(88),
-        width: px(48),
-        height: px(4),
-        borderRadius: px(2),
-        background: style.accentLine,
-        opacity: 0.6,
-      }} />
+      {/* Content — sits above photo/overlay */}
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 1,
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          padding: '88px',
+          boxSizing: 'border-box',
+        }}
+      >
+        {/* Accent line — top left */}
+        <div style={{
+          width: '48px',
+          height: '4px',
+          borderRadius: '2px',
+          background: colors.accentLine,
+          opacity: 0.6,
+          marginBottom: '0px',
+          flexShrink: 0,
+        }} />
 
-      {/* Main content — vertically centered */}
-      <div style={{
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        gap: px(32),
-        marginTop: px(16),
-      }}>
-        {/* Headline — the hero */}
-        <div>
+        {/* Main copy — vertically centered in remaining space */}
+        <div style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          gap: '32px',
+          paddingTop: '16px',
+        }}>
+          {/* Headline */}
           <p style={{
             margin: 0,
-            fontSize: px(96),
+            fontSize: '96px',
             fontWeight: 800,
             lineHeight: 1.05,
             letterSpacing: '-0.03em',
-            color: style.headline,
+            color: colors.headline,
             wordBreak: 'break-word',
-            maxWidth: '100%',
           }}>
             {headline}
           </p>
-        </div>
 
-        {/* Hook — secondary */}
-        <p style={{
-          margin: 0,
-          fontSize: px(34),
-          fontWeight: 400,
-          lineHeight: 1.5,
-          color: style.hook,
-          maxWidth: '90%',
-          wordBreak: 'break-word',
-        }}>
-          {hook}
-        </p>
-      </div>
-
-      {/* Bottom bar */}
-      <div style={{
-        borderTop: `${px(1)} solid ${style.divider}`,
-        paddingTop: px(40),
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: px(16),
-      }}>
-        {/* CTA Button */}
-        <div style={{
-          background: style.ctaBg,
-          color: ctaTextColor,
-          fontSize: px(26),
-          fontWeight: 700,
-          letterSpacing: '-0.01em',
-          padding: `${px(20)} ${px(40)}`,
-          borderRadius: px(12),
-          whiteSpace: 'nowrap',
-          lineHeight: 1,
-        }}>
-          {cta} →
-        </div>
-
-        {/* Client name */}
-        {clientName && (
+          {/* Hook */}
           <p style={{
             margin: 0,
-            fontSize: px(22),
-            fontWeight: 500,
-            color: style.client,
-            textAlign: 'right',
-            letterSpacing: '0.02em',
-            maxWidth: '40%',
+            fontSize: '34px',
+            fontWeight: 400,
+            lineHeight: 1.5,
+            color: colors.hook,
+            maxWidth: '90%',
             wordBreak: 'break-word',
           }}>
-            {clientName}
+            {hook}
           </p>
-        )}
+        </div>
+
+        {/* Bottom bar */}
+        <div style={{
+          borderTop: `1px solid ${colors.divider}`,
+          paddingTop: '40px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '16px',
+          flexShrink: 0,
+        }}>
+          <div style={{
+            background: colors.ctaBg,
+            color: ctaTextColor,
+            fontSize: '26px',
+            fontWeight: 700,
+            letterSpacing: '-0.01em',
+            padding: '20px 40px',
+            borderRadius: '12px',
+            whiteSpace: 'nowrap',
+            lineHeight: 1,
+          }}>
+            {cta} →
+          </div>
+
+          {clientName && (
+            <p style={{
+              margin: 0,
+              fontSize: '22px',
+              fontWeight: 500,
+              color: colors.client,
+              textAlign: 'right',
+              letterSpacing: '0.02em',
+              maxWidth: '40%',
+              wordBreak: 'break-word',
+            }}>
+              {clientName}
+            </p>
+          )}
+        </div>
       </div>
     </div>
   )
