@@ -4,12 +4,13 @@ import { AdCard, type AdCreative } from './AdCard'
 
 interface AdGalleryProps {
   creatives: AdCreative[]
+  clientName?: string
   loadingCount?: number
   onUnsave?: (id: string) => void
   onWinnerToggle?: (id: string, next: boolean) => void
 }
 
-export function AdGallery({ creatives, loadingCount = 0, onUnsave, onWinnerToggle }: AdGalleryProps) {
+export function AdGallery({ creatives, clientName, loadingCount = 0, onUnsave, onWinnerToggle }: AdGalleryProps) {
   const isEmpty = creatives.length === 0 && loadingCount === 0
 
   if (isEmpty) {
@@ -32,6 +33,7 @@ export function AdGallery({ creatives, loadingCount = 0, onUnsave, onWinnerToggl
         <AdCard
           key={ad.id}
           ad={ad}
+          clientName={clientName}
           onUnsave={onUnsave}
           onWinnerToggle={onWinnerToggle}
         />

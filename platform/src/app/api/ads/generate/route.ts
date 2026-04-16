@@ -4,7 +4,6 @@ import { streamClaudeResponse } from '@/lib/claude/client'
 import { loadClientContext } from '@/lib/context-loader'
 import { generateAdsTool } from '@/lib/tool-registry/tools/generate-ads'
 import { getTool } from '@/lib/tool-registry'
-import { generateAdImagesBatch, type AdSize } from '@/lib/image-generator'
 import { loadWorkflowMarkdown } from '@/lib/workflow-runner/loader'
 
 export const runtime = 'nodejs'
@@ -16,10 +15,10 @@ interface AdGenerateRequest {
   campaign_objective: string
   angle: string
   ad_format: string
-  ad_size: AdSize
+  ad_size: string
   ad_count: string
+  visual_style?: string
   messaging_focus?: string
-  reference_image_url?: string
 }
 
 interface ParsedAd {
@@ -72,9 +71,9 @@ function buildSystemPrompt(
     .join('\n')
 
   const sections = [
-    `You are the Agency OS AI — an expert Facebook ad creative strategist for Rework Consulting, a performance marketing agency specializing in local home service businesses (HVAC, roofing, solar, siding, pest control, etc.).
+    `You are a direct response copywriter specializing in local home service businesses (HVAC, roofing, solar, siding, pest control). You write Facebook ads that sound like a satisfied homeowner telling their neighbor — not a marketer writing a campaign. Every line must be specific enough that swapping in a competitor's name would feel wrong.
 
-Your role is to execute the workflow instructions below precisely. Use the client context as your knowledge base. Do not ask for information already present in the context.
+Your role is to execute the workflow instructions below precisely. Use the client context and ICP data as your source of truth for customer language. Do not ask for information already present in the context.
 
 ---
 
@@ -120,8 +119,8 @@ export async function POST(request: NextRequest) {
     ad_format,
     ad_size,
     ad_count,
+    visual_style,
     messaging_focus,
-    reference_image_url,
   } = body
 
   if (!client_slug || !target_service || !campaign_objective || !angle || !ad_format || !ad_size) {
@@ -243,7 +242,6 @@ export async function POST(request: NextRequest) {
           ad_size,
           ad_count: ad_count ?? '5',
           ...(messaging_focus ? { messaging_focus } : {}),
-          ...(reference_image_url ? { reference_image_url } : {}),
         }
 
         const systemPrompt = buildSystemPrompt(
@@ -279,24 +277,12 @@ export async function POST(request: NextRequest) {
 
         enqueue({
           type: 'status',
-          stage: 'images',
-          message: `Generating ${parsedAds.length} ad image${parsedAds.length !== 1 ? 's' : ''}...`,
-          total: parsedAds.length,
+          stage: 'saving',
+          message: `Saving ${parsedAds.length} ad${parsedAds.length !== 1 ? 's' : ''}...`,
         })
 
-        // 8. Generate images in parallel via FAL AI
-        const imagePrompts = parsedAds.map((ad) => ad.image_prompt)
-        const imageResults = await generateAdImagesBatch(imagePrompts, ad_size as AdSize, reference_image_url)
-
-        // Log any FAL errors so we can diagnose silently-failing images
-        const failedImages = imageResults.filter((r) => !r.url)
-        if (failedImages.length > 0) {
-          console.error('[FAL] Image generation failures:', failedImages.map((r) => r.error))
-          enqueue({ type: 'status', stage: 'images', message: `Warning: ${failedImages.length} image(s) failed — ${failedImages[0]?.error ?? 'unknown error'}` })
-        }
-
-        // 9. Persist ad_creatives rows
-        const insertRows = parsedAds.map((ad, i) => ({
+        // 8. Persist ad_creatives rows — no image generation, template renders client-side
+        const insertRows = parsedAds.map((ad) => ({
           client_id: clientContext.client.id,
           workflow_run_id: runId ?? null,
           target_service,
@@ -304,20 +290,19 @@ export async function POST(request: NextRequest) {
           angle,
           ad_format,
           ad_size,
+          visual_style: visual_style ?? 'dark',
           hook: ad.hook,
           primary_text: ad.primary_text,
           headline: ad.headline,
           cta: ad.cta,
-          image_prompt: ad.image_prompt,
-          image_url: imageResults[i]?.url ?? null,
-          image_status: imageResults[i]?.url ? 'complete' : 'failed',
-          reference_image_url: reference_image_url ?? null,
+          image_url: null,
+          image_status: 'template',
         }))
 
         const { data: creatives } = await supabase
           .from('ad_creatives')
           .insert(insertRows)
-          .select('id, hook, primary_text, headline, cta, image_url, image_status, angle, ad_format, ad_size, is_winner')
+          .select('id, hook, primary_text, headline, cta, image_url, image_status, angle, ad_format, ad_size, visual_style, is_winner')
 
         // 10. Save full Claude output to workflow_outputs
         await supabase.from('workflow_outputs').insert({

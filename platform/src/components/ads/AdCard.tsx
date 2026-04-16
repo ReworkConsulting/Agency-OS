@@ -1,6 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
+import { toPng } from 'html-to-image'
+import { AdTemplate, type VisualStyle } from './AdTemplate'
 
 export interface AdCreative {
   id: string
@@ -21,19 +23,39 @@ export interface AdCreative {
 
 interface AdCardProps {
   ad: AdCreative
+  clientName?: string
   isLoading?: boolean
   onUnsave?: (id: string) => void
   onWinnerToggle?: (id: string, next: boolean) => void
 }
 
-export function AdCard({ ad, isLoading, onUnsave, onWinnerToggle }: AdCardProps) {
+export function AdCard({ ad, clientName, isLoading, onUnsave, onWinnerToggle }: AdCardProps) {
   const [expanded, setExpanded] = useState(false)
-  const [imgError, setImgError] = useState(false)
   const [savedToLibrary, setSavedToLibrary] = useState(ad.saved_to_library ?? false)
   const [savingToLibrary, setSavingToLibrary] = useState(false)
   const [isWinner, setIsWinner] = useState(ad.is_winner ?? false)
   const [togglingWinner, setTogglingWinner] = useState(false)
   const [copiedField, setCopiedField] = useState<string | null>(null)
+  const [downloading, setDownloading] = useState(false)
+  const [displayScale, setDisplayScale] = useState(0.3)
+
+  // The full-size 1080px template (used for PNG capture)
+  const templateRef = useRef<HTMLDivElement>(null)
+  // The container that we measure to compute display scale
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  // Scale the 1080px template to fit the card container
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    const obs = new ResizeObserver(([entry]) => {
+      if (entry?.contentRect.width) {
+        setDisplayScale(entry.contentRect.width / 1080)
+      }
+    })
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
 
   const sizeLabel: Record<string, string> = {
     square: '1:1',
@@ -89,6 +111,26 @@ export function AdCard({ ad, isLoading, onUnsave, onWinnerToggle }: AdCardProps)
     }
   }
 
+  const downloadPng = useCallback(async () => {
+    if (!templateRef.current || downloading) return
+    setDownloading(true)
+    try {
+      // Capture the full 1080px template at 1:1 — no upscaling needed
+      const dataUrl = await toPng(templateRef.current, {
+        pixelRatio: 1,
+        cacheBust: true,
+      })
+      const link = document.createElement('a')
+      link.download = `${ad.headline?.replace(/\s+/g, '-').toLowerCase() ?? ad.id}.png`
+      link.href = dataUrl
+      link.click()
+    } catch {
+      // silent fail
+    } finally {
+      setDownloading(false)
+    }
+  }, [ad.headline, ad.id, downloading])
+
   if (isLoading) {
     return (
       <div
@@ -114,36 +156,36 @@ export function AdCard({ ad, isLoading, onUnsave, onWinnerToggle }: AdCardProps)
         boxShadow: isWinner ? '0 0 0 1px rgb(180 120 30 / 0.15)' : undefined,
       }}
     >
-      {/* Image */}
-      <div className="relative aspect-square overflow-hidden" style={{ background: 'var(--bg-subtle)' }}>
-        {ad.image_url && !imgError ? (
-          <img
-            src={ad.image_url}
-            alt={ad.headline}
-            className="w-full h-full object-cover"
-            onError={() => setImgError(true)}
+      {/* Ad Template Visual — full 1080px template scaled to fit the card */}
+      <div ref={containerRef} className="relative aspect-square overflow-hidden">
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            transformOrigin: 'top left',
+            transform: `scale(${displayScale})`,
+          }}
+        >
+          <AdTemplate
+            headline={ad.headline}
+            hook={ad.hook}
+            cta={ad.cta}
+            clientName={clientName}
+            visualStyle={(ad.visual_style as VisualStyle) ?? 'dark'}
+            innerRef={templateRef}
           />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <span className="text-xs" style={{ color: 'var(--text-4)' }}>
-              {ad.image_status === 'failed' ? 'Image generation failed' : 'No image'}
-            </span>
-          </div>
-        )}
+        </div>
 
         {/* Hover overlay */}
         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 bg-black/50">
-          {ad.image_url && !imgError && (
-            <a
-              href={ad.image_url}
-              download={`ad-${ad.id}.jpg`}
-              target="_blank"
-              rel="noreferrer"
-              className="px-3 py-1.5 bg-white text-black text-xs font-medium rounded-lg hover:bg-zinc-100 transition-colors"
-            >
-              Download
-            </a>
-          )}
+          <button
+            onClick={downloadPng}
+            disabled={downloading}
+            className="px-3 py-1.5 bg-white text-black text-xs font-medium rounded-lg hover:bg-zinc-100 transition-colors disabled:opacity-50"
+          >
+            {downloading ? 'Exporting…' : 'Download PNG'}
+          </button>
         </div>
 
         {/* Top badges */}
@@ -165,9 +207,8 @@ export function AdCard({ ad, isLoading, onUnsave, onWinnerToggle }: AdCardProps)
           </span>
         </div>
 
-        {/* Action buttons (bottom-right) */}
+        {/* Action buttons bottom-right */}
         <div className="absolute bottom-2 right-2 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-          {/* Winner toggle */}
           <button
             onClick={toggleWinner}
             disabled={togglingWinner}
@@ -176,7 +217,6 @@ export function AdCard({ ad, isLoading, onUnsave, onWinnerToggle }: AdCardProps)
           >
             <StarIcon filled={isWinner} />
           </button>
-          {/* Library toggle */}
           <button
             onClick={toggleLibrary}
             disabled={savingToLibrary}
@@ -188,7 +228,7 @@ export function AdCard({ ad, isLoading, onUnsave, onWinnerToggle }: AdCardProps)
         </div>
       </div>
 
-      {/* Copy */}
+      {/* Copy text fields */}
       <div className="p-4 space-y-3">
 
         {/* Hook */}
@@ -241,7 +281,7 @@ export function AdCard({ ad, isLoading, onUnsave, onWinnerToggle }: AdCardProps)
           </div>
         </div>
 
-        {/* Tags row: angle + format */}
+        {/* Tags: angle + format */}
         {(ad.angle || ad.ad_format) && (
           <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
             {ad.angle && (

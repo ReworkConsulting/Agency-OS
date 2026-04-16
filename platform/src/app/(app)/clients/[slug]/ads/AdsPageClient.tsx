@@ -8,6 +8,7 @@ import type { AdCreative } from '@/components/ads/AdCard'
 
 interface AdsPageClientProps {
   slug: string
+  clientName: string
   primaryService: string | null
   hasIcp: boolean
   initialCreatives: AdCreative[]
@@ -15,6 +16,7 @@ interface AdsPageClientProps {
 
 export function AdsPageClient({
   slug,
+  clientName,
   primaryService,
   hasIcp,
   initialCreatives,
@@ -100,6 +102,7 @@ export function AdsPageClient({
 
           <AdGallery
             creatives={visibleCreatives}
+            clientName={clientName}
             loadingCount={generatingCount}
             onUnsave={handleUnsave}
             onWinnerToggle={handleWinnerToggle}

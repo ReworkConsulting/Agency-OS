@@ -46,6 +46,7 @@ export default async function AdsPage({
       </div>
       <AdsPageClient
         slug={slug}
+        clientName={client.company_name}
         primaryService={client.primary_service}
         hasIcp={!!icpResult.data}
         initialCreatives={creativesResult.data ?? []}

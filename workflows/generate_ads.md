@@ -2,7 +2,7 @@
 
 ## Objective
 
-Generate a complete set of high-converting Facebook ad variations for a home service client. Each ad variation includes a hook, primary text, headline, CTA, and a detailed image generation prompt suitable for FAL AI (Flux model).
+Generate a complete set of high-converting Facebook ad variations for a home service client. Each ad variation includes a hook, primary text, headline, CTA, and a structured image generation prompt optimized for FAL AI (Flux Dev model).
 
 ## Required Inputs
 
@@ -13,7 +13,7 @@ Generate a complete set of high-converting Facebook ad variations for a home ser
 - `ad_size`: square (1080×1080) | portrait (1080×1350) | story (1080×1920)
 - `ad_count`: Number of ad variations to produce (3, 5, or 10)
 - `messaging_focus` (optional): Specific benefit, hook, or talking point to emphasize
-- `reference_image_url` (optional): URL of a reference image. If provided, use it as visual inspiration for IMAGE_PROMPT composition — match its aesthetic, color temperature, layout style, and mood. Do not copy it literally or reference competitor brands.
+- `reference_image_url` (optional): URL of a reference image. The image generator will condition output on this reference — write IMAGE_PROMPT to describe the type of visual you want, knowing it will be blended with the reference image's style, colors, and composition.
 
 ## Context Available
 
@@ -29,17 +29,32 @@ Read this context carefully. All ad copy must be:
 
 ---
 
+## Step 0 — Voice Calibration (do this before writing any copy)
+
+Before writing any ad copy, scan the ICP document and extract the 5 most specific pain phrases and 5 most specific desire phrases in the customer's exact words — not paraphrased, not summarized.
+
+Output these as a block before your first ad:
+
+```
+VOICE CALIBRATION
+PAIN PHRASES: [exact verbatim phrases from ICP — e.g. "my unit just can't keep up anymore", "dreading the next electric bill"]
+DESIRE PHRASES: [exact verbatim phrases from ICP — e.g. "just want it done right the first time", "don't want to deal with this again"]
+```
+
+These phrases are your raw material. Weave them directly into hooks, primary text, and headlines wherever they fit naturally. Paraphrasing ICP language is the #1 killer of ad specificity — the exact words are more powerful than any rewrite.
+
+---
+
 ## Output Format
 
 Produce exactly `ad_count` ad variations. Each variation must follow this EXACT format with no deviations — the system parser depends on these delimiters:
 
 ```
 ---AD_START---
-HOOK: [The hook — 1-2 punchy sentences, written as it would appear on the ad or be spoken. Under 125 characters ideally.]
-PRIMARY_TEXT: [The primary text body — 2-4 sentences. Opens with a pain point or desire, introduces the solution, adds social proof or urgency. Conversational, no jargon.]
-HEADLINE: [Short headline — 3-7 words. Direct and benefit-led.]
-CTA: [Call to action — 3-6 words. e.g. "Get a Free Quote", "Book Your Inspection", "See How Much You Save"]
-IMAGE_PROMPT: [Detailed image generation prompt for FAL AI Flux model. Include: subject/scene, visual style, lighting, color palette, composition, mood. Must match the ad_format's composition rules below. Do NOT include text or logos in the prompt. Be specific enough that the image supports the hook and angle without referencing competitor brands or real people.]
+HOOK: [1-2 punchy sentences. Conversational and direct. Under 100 characters. Must name a specific pain, outcome, or insight — never a generic product description. If you removed the client's name, it should feel wrong because it's so specific.]
+PRIMARY_TEXT: [2-4 sentences. Opens with pain point or desire, introduces the solution, adds social proof or urgency. Conversational, no jargon. Feel like it came from someone who knows this customer.]
+HEADLINE: [2-5 words MAX. Creative and memorable — tagline energy, not feature label. Think "Finally. Cool Air." or "Stop Paying More." or "The Last Roofer You'll Call." It should be worth remembering.]
+CTA: [3-6 words. Action-driven. e.g. "Get a Free Quote", "Book Your Inspection", "See How Much You Save"]
 ---AD_END---
 ```
 
@@ -60,8 +75,8 @@ After all ad blocks, add a section:
 Write hooks that match the campaign objective:
 
 **Lead Generation:** Problem-agitation or result-first. Make the pain vivid or the outcome desirable. Create urgency.
-- "Your [system] is working 40% harder than it should — and you're paying for every wasted hour."
-- "Most [city] homeowners don't realize their [service] is costing them $X more per month than it should."
+- "Your [system] is costing you $X a month more than it should — and it's only getting worse."
+- "Most [city] homeowners don't realize their [service] is past its breaking point."
 
 **Awareness:** Curiosity or education-led. Stop the scroll with a surprising fact or insight.
 - "Here's what separates a $3,000 [service] job from a $12,000 regret."
@@ -71,50 +86,54 @@ Write hooks that match the campaign objective:
 - "Still thinking about it? [X] [city] homeowners chose [Company] this month."
 - "We only take [X] new clients per month — [Y] slots are already gone."
 
----
-
-## Image Composition Rules by Ad Format
-
-The `ad_format` input determines the visual approach for every IMAGE_PROMPT you write. Follow these rules precisely.
-
-**Headline Statement:** Bold, typography-forward composition. Strong color block background (navy, charcoal, or brand color). Minimal scene — subject is small or abstract. Copy-dominant aesthetic. High contrast. Think direct-response print ad. No clutter.
-
-**Offer/Promotion:** Price or deal element visually prominent — large number or callout shape (badge, burst, ribbon). Clean white space. Service imagery softened in background. Crisp, retail-inspired. Even lighting. Professional.
-
-**Testimonial Card:** Portrait-orientation friendly. Warm, slightly lo-fi aesthetic for authenticity. Happy homeowner or family in their home environment. Soft natural light. Credible and approachable. Review stars implied by composition warmth.
-
-**Before & After:** Split composition (left = problem, right = solution) OR dramatic single transformation shot. Left side: worn, damaged, dirty, struggling. Right side: new, clean, modern, gleaming. Extreme contrast between panels. Bold dividing line.
-
-**Pain Point Hook:** Visceral problem visualization. Damaged roof in a storm. Dripping sweat from a broken AC. Overflowing gutters. High-contrast, slightly dramatic. The viewer should feel the problem. Not alarming — relatable.
-
-**Social Proof/Stats:** Clean, professional. Large number or data point as visual anchor. Graph, radial, or bold typographic number overlay on a neutral background. Service team or finished job in background. Conveys scale and credibility.
-
-**Us vs. Them:** Vertical split composition. Left panel: muted gray tones, generic/tired imagery representing "the competition." Right panel: vibrant brand colors, sharp professional imagery representing the client. Clear winner composition.
-
-**Feature Bullets:** Product or service hero shot as center subject. Clean background. Implied space at left or bottom for 3-5 checklist items. Arrows or callout lines pointing to key features. Clean, instructional, benefit-focused.
-
-**Lifestyle/Aspiration:** Warm golden-hour light. Family comfort scene — relaxing in a cool home, gathering around a fireplace, watching a storm from a dry living room. Emotionally resonant. Aspirational but attainable. Natural, candid feel.
-
-**Urgency/Seasonal:** Strong seasonal context — summer sun beating down on a house, winter storm outside warm windows, fall leaves clogging a gutter. Time-pressure visual mood. Slightly dramatic weather. Vivid seasonal color palette.
+**Punch Test:** Before finalizing a hook, ask: Is this conversational enough to say out loud? Is it specific enough that it would feel wrong with a different company name? If either answer is no, rewrite it.
 
 ---
 
-## Ad Size Composition Notes
+## Headline Guidelines
 
-**Square (1080×1080):** Balanced composition. Subject centered or rule-of-thirds. Works for feed ads.
+Headlines are 2-5 words and must be worth remembering.
 
-**Portrait (1080×1350):** Vertical emphasis. More visual real estate. Hero image top, implied text space bottom. Works for feed + stories.
+**Good examples:**
+- "Finally. Cool Air." — specific outcome
+- "Stop Guessing, Start Saving" — addresses pain directly
+- "The Last Roofer You'll Call" — confidence + commitment
+- "Your Neighbor Chose Us" — social proof in 4 words
+- "Hot Outside. Not Inside." — clever contrast
+- "Before the Next Storm" — urgency without panic
 
-**Story (1080×1920):** Full vertical immersion. Bold visual that fills the frame. Top and bottom thirds may have text overlay space — keep the center clear and striking.
+**Bad examples (do not write these):**
+- "Get Your Free Quote Today" — generic filler
+- "Professional HVAC Services" — not a headline, it's a label
+- "Call Us Now for a Free Estimate" — too long, zero personality
+- "Quality You Can Trust" — means nothing
+
+**Test:** Would you remember this headline 10 minutes from now? If not, rewrite it.
+
+---
+
+## Banned Phrases
+
+Never use these in any copy element — they are generic, AI-sounding, and kill conversion:
+
+- "peace of mind" / "quality you can trust" / "professional service"
+- "hassle-free" / "seamless experience" / "stress-free"
+- "your comfort is our priority" / "we're here to help"
+- "reliable, responsive, results-driven" (or any alliterative filler)
+- "don't wait" / "limited time" / "act now" (without a specific number or deadline)
+- "serving [city] for X years" used as a standalone value prop
+- Any primary text that opens with a company description or product intro instead of pain or desire
+
+If any of these appear in your draft, the copy fails. Rewrite before outputting.
 
 ---
 
 ## Quality Rules
 
-- Every hook must be specific to this client and service — no generic copy
-- Use the client's actual service area, company name, or differentiators where relevant
-- Primary text should feel like it was written by someone who understands this customer, not marketing copy
-- Image prompts must be detailed enough to generate a compelling, relevant image (minimum 50 words)
-- Do NOT write image prompts that include text, logos, or specific people
+- Every hook must contain at least one specificity anchor: a number, a named pain scenario, or exact language from your Voice Calibration extraction. Generic emotional appeals without anchors are not acceptable.
+- Every hook must pass the competitor swap test: if you replaced the client's name with a competitor's name and the hook still makes sense, rewrite it until it doesn't.
+- Headlines are 2-5 words. No exceptions. Make them worth remembering.
+- Primary text must open with the customer's own words or an immediate pain/desire scenario — never open with a product description, company name, or generic setup line.
+- Voice check: Every piece of copy must sound like a satisfied customer talking to their neighbor — not a marketer writing a campaign. If it sounds polished, it probably sounds generic.
 - Each of the `ad_count` variations must target a meaningfully different emotional trigger or proof mechanism — no near-duplicates
-- Campaign notes must be substantive and specific, not generic observations
+- Campaign notes must be specific: which ICP pain points, why these hooks, how the images reinforce the message

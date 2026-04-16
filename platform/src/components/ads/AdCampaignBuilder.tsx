@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { AngleSuggestions } from './AngleSuggestions'
-import { ReferenceImagePicker } from './ReferenceImagePicker'
 import { AdFormatPicker } from './AdFormatPicker'
 import type { AdCreative } from './AdCard'
+import type { VisualStyle } from './AdTemplate'
 
 interface AdCampaignBuilderProps {
   clientSlug: string
@@ -30,6 +30,13 @@ const AD_SIZES = [
 
 const ADS_PER_ANGLE = ['3', '5', '10']
 
+const VISUAL_STYLES: { value: VisualStyle; label: string; desc: string; preview: string }[] = [
+  { value: 'dark',     label: 'Dark',     desc: 'Black bg, white text',    preview: '#0c0c0c' },
+  { value: 'light',    label: 'Light',    desc: 'White bg, dark text',     preview: '#f5f5f3' },
+  { value: 'gradient', label: 'Gradient', desc: 'Dark gradient bg',        preview: '#1c1c1c' },
+  { value: 'brand',    label: 'Brand',    desc: 'Solid brand color',       preview: '#1a1a2e' },
+]
+
 export function AdCampaignBuilder({
   clientSlug,
   primaryService,
@@ -52,16 +59,16 @@ export function AdCampaignBuilder({
   const [adSize, setAdSize] = useState<'square' | 'portrait' | 'story'>('square')
   const [adsPerAngle, setAdsPerAngle] = useState('3')
 
-  // Section 5 — Extras
+  // Section 5 — Style & Notes
+  const [visualStyle, setVisualStyle] = useState<VisualStyle>('dark')
   const [messagingFocus, setMessagingFocus] = useState('')
-  const [referenceImageUrl, setReferenceImageUrl] = useState<string | null>(null)
 
   // Generation state
   const [stage, setStage] = useState<Stage>('idle')
   const [currentAngleLabel, setCurrentAngleLabel] = useState('')
   const [angleProgress, setAngleProgress] = useState({ current: 0, total: 0 })
   const [errorMessage, setErrorMessage] = useState('')
-  const abortRef = useRef<AbortController | null>(null)
+  const abortRef = { current: null as AbortController | null }
 
   function toggleAngle(label: string) {
     setSelectedAngles((prev) => {
@@ -94,8 +101,8 @@ export function AdCampaignBuilder({
         ad_format: adFormat,
         ad_size: adSize,
         ad_count: adsPerAngle,
+        visual_style: visualStyle,
         messaging_focus: messagingFocus || undefined,
-        reference_image_url: referenceImageUrl || undefined,
       }),
     })
 
@@ -140,17 +147,18 @@ export function AdCampaignBuilder({
     setAngleProgress({ current: 0, total: allAngles.length })
     onGeneratingChange(totalAds)
 
-    abortRef.current = new AbortController()
+    const controller = new AbortController()
+    abortRef.current = controller
 
     try {
       for (let i = 0; i < allAngles.length; i++) {
-        if (abortRef.current.signal.aborted) break
+        if (controller.signal.aborted) break
 
         const angle = allAngles[i]
         setCurrentAngleLabel(angle)
         setAngleProgress({ current: i + 1, total: allAngles.length })
 
-        const ads = await generateForAngle(angle, abortRef.current.signal)
+        const ads = await generateForAngle(angle, controller.signal)
         if (ads.length > 0) {
           onAdsGenerated(ads)
           onGeneratingChange(Math.max(0, totalAds - (i + 1) * parseInt(adsPerAngle)))
@@ -341,13 +349,45 @@ export function AdCampaignBuilder({
           </div>
         </section>
 
-        {/* ── 5: EXTRAS ──────────────────────────────────────────── */}
+        {/* ── 5: STYLE & NOTES ───────────────────────────────────── */}
         <section className="px-5 py-4 space-y-3">
-          <SectionLabel number={5} title="EXTRAS" subtitle="optional" />
+          <SectionLabel number={5} title="STYLE" subtitle="optional" />
 
           <div>
             <label className="block text-[10px] font-medium mb-1.5" style={{ color: 'var(--text-3)' }}>
-              Messaging Notes
+              Visual Style
+            </label>
+            <div className="grid grid-cols-4 gap-1.5">
+              {VISUAL_STYLES.map((s) => (
+                <button
+                  key={s.value}
+                  onClick={() => setVisualStyle(s.value)}
+                  disabled={isGenerating}
+                  title={s.desc}
+                  className="py-2 rounded-lg text-xs transition-colors disabled:opacity-50 flex flex-col items-center gap-1"
+                  style={{
+                    background: visualStyle === s.value ? 'var(--text-1)' : 'var(--bg-subtle)',
+                    color: visualStyle === s.value ? 'var(--bg)' : 'var(--text-3)',
+                    border: `1px solid ${visualStyle === s.value ? 'var(--text-1)' : 'var(--border)'}`,
+                  }}
+                >
+                  {/* Color swatch */}
+                  <div
+                    className="w-5 h-5 rounded-sm border"
+                    style={{
+                      background: s.preview,
+                      borderColor: visualStyle === s.value ? 'rgba(255,255,255,0.3)' : 'var(--border-dim)',
+                    }}
+                  />
+                  <span className="text-[10px] font-medium">{s.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-medium mb-1.5" style={{ color: 'var(--text-3)' }}>
+              Messaging Notes <span style={{ color: 'var(--text-4)' }}>(optional)</span>
             </label>
             <textarea
               value={messagingFocus}
@@ -363,12 +403,6 @@ export function AdCampaignBuilder({
               }}
             />
           </div>
-
-          <ReferenceImagePicker
-            clientSlug={clientSlug}
-            value={referenceImageUrl}
-            onChange={setReferenceImageUrl}
-          />
         </section>
 
       </div>
